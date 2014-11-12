@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Spatial-Temporal Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/custom/custom.css" rel="stylesheet">
+    <!-- font-awesome -->
+    <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- prism -->
+    <link href="assets/prism/prism.css" rel="stylesheet">
+    <link href="assets/prism/prism.r.css" rel="stylesheet">
+    <script type='text/javascript' src='assets/prism/prism.js'></script>
+    <script type='text/javascript' src='assets/prism/prism.r.js'></script>
+    
+    
+    
+    <script type="text/javascript" src="assets/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+   MathJax.Hub.Config({    
+     extensions: ["tex2jax.js"],    
+     "HTML-CSS": { scale: 100}    
+   });
+   </script>
+    
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <!-- <link href='http://fonts.googleapis.com/css?family=Lustria' rel='stylesheet' type='text/css'> -->
+    <link href='http://fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Raleway:300' rel='stylesheet' type='text/css'>
+    
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+                                   <!-- <link rel="shortcut icon" href="ico/favicon.png"> -->
+  </head>
+
+  <body>
+
+    <div class="container-narrow">
+
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+           
+        </ul>
+        
+        <p class="myHeader">Spatial-Temporal Data</p>
+      </div>
+
+      <hr>
+
+<div class="container-fluid">
+   <div class="row-fluid">
+   
+   <div class="col-md-3 well">
+   <ul class = "nav nav-list" id="toc">
+   <li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>Land-based Station:</li>
+      
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#quality-controlled-local-climatological-data-qclcd'>Quality Controlled Local Climatological Data (QCLCD)</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#unedited-local-climatological-data-ulcd'>Unedited Local Climatological Data (ULCD)</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#integrated-surface-database-isd'>Integrated Surface Database (ISD)</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#global-historical-climatology-network-ghcn'>Global Historical Climatology Network (GHCN)</a>
+      </li>
+
+
+<li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>Satellite Data:</li>
+      
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#geostationary-ir-channel-brightness-temperature---gridsat-b1'>Geostationary IR Channel Brightness Temperature - GridSat B1</a>
+      </li>
+
+
+<li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>Reanalysis Data:</li>
+      
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#what-is-reanalysis-data'>What is Reanalysis Data</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#key-strengths'>Key Strengths:</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#key-limitations'>Key Limitations:</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#dataset'>Dataset</a>
+      </li>
+
+   </ul>
+   </div>
+
+<div class="col-md-9 tab-content" id="main-content">
+
+<div class='tab-pane active' id='quality-controlled-local-climatological-data-qclcd'>
+<h3>Quality Controlled Local Climatological Data (QCLCD)</h3>
+
+<p>Experiencing a quality controlled, the QCLCD data technically is from Jan 2005 to present. But 
+since data from 2005 to 2007 is still under processing of quality controlled, the data is from
+QCLCD200705 to QCLCD201410, and is consist of hourly, daily, and monthly summaries for 
+approximately 1,600 U.S. locations. Totally 90 months. Each hourly data (for each month) is about
+300Mb, and daily data is about 4Mb, and monthly data is about 200Kb. For hourly data, there are 
+24 columns, such as DryBulb temperature, WetBulb temperature, DewPoints temperature, RelativeHumidity, 
+Windspeed, so forth.</p>
+
+</div>
+
+
+<div class='tab-pane' id='unedited-local-climatological-data-ulcd'>
+<h3>Unedited Local Climatological Data (ULCD)</h3>
+
+<p>Unedited local data is from July 1996 to July 2007. For over 700 U.S. locations. Each hourly data
+(for each month) is about 45 Mb. If we would like to study this LCD data, hourly data is more
+reasonable with respect to the size, it is large. And unedited LCD can be merged to QCLCD, which
+means we can have data from Junly 1996 to Oct 2014 which is 220 months. But the number of stations
+is very small.</p>
+
+</div>
+
+
+<div class='tab-pane' id='integrated-surface-database-isd'>
+<h3>Integrated Surface Database (ISD)</h3>
+
+</div>
+
+
+<div class='tab-pane' id='global-historical-climatology-network-ghcn'>
+<h3>Global Historical Climatology Network (GHCN)</h3>
+
+</div>
+
+
+<div class='tab-pane' id='geostationary-ir-channel-brightness-temperature---gridsat-b1'>
+<h3>Geostationary IR Channel Brightness Temperature - GridSat B1</h3>
+
+<p>There are three variables in this satellite data, infrared window observation for brightness temperature, 
+infrared water vapor observation, and visible channel observation. Spatial resolution is about 8km 
+(which is about 0.07 degree in lon and lat) from 70S to 70N. For 1980 to present, every 3 hour observations.</p>
+
+</div>
+
+
+<div class='tab-pane' id='what-is-reanalysis-data'>
+<h3>What is Reanalysis Data</h3>
+
+<p>Reanalysis datasets are created by assimilating (&quot;inputting&quot;) climate observations using the same 
+climate model throughout the entire reanalysis period in order to reduce the affects of modeling 
+changes on climate statistics. Observations are from many different sources including ships, 
+satellites, ground stations, RAOBS, and radar.</p>
+
+<p>Reanalysis of past weather data presents a clear picture of past weather, independent of the many 
+varieties of instruments used to take measurements over the years. Through a variety of methods, 
+observations from various instruments are added together onto a regularly spaced grid of data. 
+Placing all instrument observations onto a regularly spaced grid makes comparing the actual 
+observations with other gridded datasets easier. In addition to putting observations onto a grid, 
+reanalysis also holds the gridding model constant—it doesn&#39;t change the programming—keeping the 
+historical record uninfluenced by artificial factors. Reanalysis helps ensure a level playing field 
+for all instruments throughout the historical record.</p>
+
+</div>
+
+
+<div class='tab-pane' id='key-strengths'>
+<h3>Key Strengths:</h3>
+
+<ul>
+<li> Global data sets, consistent spatial and temporal resolution over 3 or more decades, hundreds of 
+variables available; model resolution and biases have steadily improved</li>
+<li> Reanalyses incorporate millions of observations into a stable data assimilation system that would 
+be nearly impossible for an individual to collect and analyze separately, enabling a number of 
+climate processes to be studied</li>
+<li> Reanalysis data sets are relatively straightforward to handle from a processing standpoint 
+(although file sizes can be very large)</li>
+</ul>
+
+</div>
+
+
+<div class='tab-pane' id='key-limitations'>
+<h3>Key Limitations:</h3>
+
+<ul>
+<li> Reanalysis data sets should not be equated with &quot;observations&quot; or &quot;reality&quot;</li>
+<li> The changing mix of observations, and biases in observations and models, can introduce spurious 
+variability and trends into reanalysis output</li>
+<li> Observational constraints, and therefore reanalysis reliability, can considerably vary depending 
+on the location, time period, and variable considered</li>
+</ul>
+
+</div>
+
+
+<div class='tab-pane' id='dataset'>
+<h3>Dataset</h3>
+
+<ul>
+<li> <strong>NCEP North American Regional Reanalysis: NARR</strong></li>
+</ul>
+
+<p>NCEP&#39;s high resolution combined model and assimilated dataset. It covers 1979 to near present and is
+provided 8-times daily, daily and monthly on a Northern Hemisphere Lambert Conformal Conic grid for 
+all variables. Current total of 29.4 Tbytes for 8xDaily. The grid resolution is 349x277 which is 
+approximately 0.3 degrees (32km) resolution at the lowest latitude. Three different type of responses
+in the dataset. </p>
+
+<ol>
+<li>Air Temperature, Humidity, Zonal and Meridional Wind at 29 pressure levels.</li>
+<li>Air Temperature at 2 meter, at surface, Accumulated total evaporation at surface, Moisture 
+Availability at surface, Precipitation rate at surface, Pressure at surface and so forth.</li>
+<li>Soil Temperature at 5 depth levels.</li>
+</ol>
+
+</div>
+
+   
+   <ul class="pager">
+      <li><a href="#" id="previous">&larr; Previous</a></li> 
+      <li><a href="#" id="next">Next &rarr;</a></li> 
+   </ul>
+</div>
+
+
+</div>
+</div>
+
+<hr>
+
+<div class="footer">
+   <p>&copy; Xiaosu Tong, 2014</p>
+</div>
+</div> <!-- /container -->
+
+<script src="assets/jquery/jquery.js"></script>
+<script type='text/javascript' src='assets/custom/custom.js'></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+<script src="assets/custom/jquery.ba-hashchange.min.js"></script>
+<script src="assets/custom/nav.js"></script>
+
+</body>
+</html>
