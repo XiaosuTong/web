@@ -71,6 +71,11 @@
          <a target='_self' class='nav-not-header' href='#in-short'>In Short</a>
       </li>
 
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#motivation'>Motivation</a>
+      </li>
+
    </ul>
    </div>
 
@@ -83,6 +88,35 @@
 the separate categories are divided by a clear gap that is as wide as possible. New examples are 
 then mapped into that same space and predicted to belong to a category based on which side of the 
 gap they fall on.</p>
+
+<p>It often happens that the sets to discriminate are not linearly separable in that space. For this 
+reason, it was proposed that the original finite-dimensional space be mapped into a much 
+higher-dimensional space, presumably making the separation easier in that space.</p>
+
+<p>The hyperplanes in the higher-dimensional space are defined as the set of points whose dot product
+with a vector in that space is constant.</p>
+
+</div>
+
+
+<div class='tab-pane' id='motivation'>
+<h3>Motivation</h3>
+
+<p>In the case of support vector machines, a data point is viewed as a p-dimensional vector (a list of 
+p numbers), and we want to know whether we can separate such points with a (p − 1)-dimensional 
+hyperplane. This is called a linear classifier. </p>
+
+<p>There are many hyperplanes that might classify the data. One reasonable choice as the best hyperplane 
+is the one that represents the largest separation, or margin, between the two classes. So we choose 
+the hyperplane so that the distance from it to the nearest data point on each side is maximized. If 
+such a hyperplane exists, it is known as the maximum-margin hyperplane and the linear classifier it 
+defines is known as a maximum margin classifier; or equivalently, the perceptron of optimal stability.</p>
+
+<p>Any hyperplane can be written as the set of points \(\mathbf{x}\) satisfying</p>
+
+<p>\[ 
+\mathbf{w}\dot\mathbf{x} - b = 0
+\]</p>
 
 </div>
 

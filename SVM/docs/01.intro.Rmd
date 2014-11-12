@@ -1,3 +1,22 @@
+<style TYPE="text/css">
+code.has-jax {font: inherit; font-size: 100%; background: inherit; border: inherit;}
+</style>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] // removed 'code' entry
+    }
+});
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
 # Support Vector Machine #
 
 ## Defination ##
@@ -7,3 +26,28 @@ An SVM model is a representation of the examples as points in space, mapped so t
 the separate categories are divided by a clear gap that is as wide as possible. New examples are 
 then mapped into that same space and predicted to belong to a category based on which side of the 
 gap they fall on.
+
+It often happens that the sets to discriminate are not linearly separable in that space. For this 
+reason, it was proposed that the original finite-dimensional space be mapped into a much 
+higher-dimensional space, presumably making the separation easier in that space.
+
+The hyperplanes in the higher-dimensional space are defined as the set of points whose dot product
+with a vector in that space is constant.
+
+### Motivation ###
+
+In the case of support vector machines, a data point is viewed as a p-dimensional vector (a list of 
+p numbers), and we want to know whether we can separate such points with a (p − 1)-dimensional 
+hyperplane. This is called a linear classifier. 
+
+There are many hyperplanes that might classify the data. One reasonable choice as the best hyperplane 
+is the one that represents the largest separation, or margin, between the two classes. So we choose 
+the hyperplane so that the distance from it to the nearest data point on each side is maximized. If 
+such a hyperplane exists, it is known as the maximum-margin hyperplane and the linear classifier it 
+defines is known as a maximum margin classifier; or equivalently, the perceptron of optimal stability.
+
+Any hyperplane can be written as the set of points $\mathbf{x}$ satisfying
+
+$$latex 
+\mathbf{w}\dot\mathbf{x} - b = 0
+$$
