@@ -136,21 +136,306 @@ $$
 \theta_{\mathcal{P}}(\omega) = \max_{\alpha, \beta: \alpha_i \ge 0} \mathcal{L}(\omega, \alpha, \beta)
 $$
 Here, the "$\mathcal{P}$" subscript stands for "primal". For this quantity, we fix the $\omega$, and vary 
-$\alpha$ and $\beta$. If the given $omega$ violates any primal constraints for some $i$, the we will have 
+$\alpha$ and $\beta$. If the given $\omega$ violates any primal constraints for some $i$, the we will have 
 $$
 \theta_{\mathcal{P}}(\omega) = f(\omega) + \max_{\alpha} \sum_{i=1}^{k}\alpha_ig_i(\omega) + \max_{\beta} 
 \sum_{i=1}^{l}\beta_ih_i(\omega) =  \infty
 $$
+It is obvious that we can easily find $\beta_i$'s to make $\sum_{i=1}^{l}\beta_ih_i(\omega)$ to be $\infty$ if
+$h_i(\omega) \ne 0$. Same for the $\alpha_i$'s
+Conversely, if the constraints are indeed satisfied for the given value of $\omega$, then 
+$\theta_{\mathcal{P}}(\omega) = f(\omega)$. Hence,
+
+\[ \theta_{\mathcal{P}}(\omega) = \left\{
+  \begin{array}{l l}
+    f(\omega) & \quad \text{if $\omega$ satisfies primal constraints}\\
+    \infty & \quad \text{otherwise}
+  \end{array} \right.\]
+
+Thus, $\theta_{\mathcal{P}}$ takes the same value as the objective in our problem for all value of $\omega$ 
+that satisfies the primal constraints, and is positive infinity if constraints are violated. So if we consider
+the minimization problem:
+
+$$
+\min_{\omega} \theta_{\mathcal{P}}(\omega) = \min_{\omega} \max_{\alpha, \beta: \alpha_i \ge 0} \mathcal{L}(\omega, \alpha, \beta)
+$$
+
+will be the same problem (and has the same solutions as) our original primal problem. For later use, we define 
+the optimal value of the objective to be 
+
+$$p^* = \min_{\omega} \theta_{\mathcal{P}}(\omega)$$
+
+#### Note ####
+
+One thing should keep in mind is that in the primal problem (primal optimization), we first maximize our objective function 
+$\mathcal{L}(\omega, \alpha, \beta)$ with respect to $\alpha$ and $\beta$ for a given $\omega$, because we can tell if this 
+given $\omega$ is satisfied constraints or not by checking if the maximization of $\alpha$ and $\beta$ is infinity or not.
+And then minimize over $\omega$, this basically just identify $f(\omega)$ from infinity.
 
 ### Dual Optimization ###
 
+Now, besides the primal problem, let's look at a slightly different problem. We define that 
+$$
+\theta_{\mathcal{D}}(\alpha, \beta) = \min_{\omega}\mathcal{L}(\omega, \alpha, \beta)
+$$
+Here, the "$\mathcal{D}$" subscript stands for "dual". Note that the difference between $\theta_{\mathcal{D}}$ 
+and $\theta_{\mathcal{P}}$:
+- $\theta_{\mathcal{P}}(\omega) = \max_{\alpha, \beta} \mathcal{L}(\omega, \alpha, \beta)$, 
+and then $\min_{\omega} \theta_{\mathcal{P}}(\omega)$
+- $\theta_{\mathcal{D}}(\alpha, \beta) = \min_{\omega} \mathcal{L}(\omega, \alpha, \beta)$, 
+and then $\max_{\alpha, \beta} \theta_{\mathcal{D}}(\alpha, \beta)$
+
+So the **dual** optimization problem is:
+
+$$
+\max_{\alpha, \beta: \alpha_i \ge 0} \theta_{\mathcal{D}}(\alpha, \beta) = \max_{\alpha, \beta: \alpha_i \ge 0} \min_{\omega}
+\mathcal{L} (\omega, \alpha, \beta)
+$$
+
+This is exactly the same as our primal problem, except that the order of the "max" and "min" are now exchanged.
+We also define the optimal value of dual problem's objective to be:
+$$
+d^* =  \max_{\alpha, \beta: \alpha_i \ge 0} \theta_{\mathcal{D}}(\alpha, \beta)
+$$
+Since we know the "max min" of a function always being less than or equal to the "min max", we can have
+$$
+d^* = \max_{\alpha, \beta: \alpha_i \ge 0} \min_{\omega} \mathcal{L} (\omega, \alpha, \beta) \le
+\min_{\omega} \max_{\alpha, \beta: \alpha_i \ge 0} \mathcal{L}(\omega, \alpha, \beta) = p^*
+$$
+However under certain conditions, we will have $d^* = p^*$. So that we can solve the dual problem in lieu of the primal problem.
+
+Assumption:
+- $f$ and $g_i$'s are convex
+- $h_i$'s are affine, which means there exists $a_i$ and $b_i$ so that $h_i(\omega) = a_i^T\omega + b_i$. Affine means the same
+thing as linear, except that we also allow the extra intercept term $b_i$
+- constraints $g_i$ are strictly feasible, which means there exists some $\omega$ so that $g_i(\omega) < 0$ for all $i$.
+
+Under these three assumptions, there **must** exist $\omega^*, \alpha^*, \beta^*$ so that $\omega^*$ is the solution to the 
+primal problem, $\alpha^*, \beta^*$ are the solution to the dual problem, and moreover, $p^* = d^* = \mathcal{L}(\omega^*, \alpha^*, \beta^*)$.
+Moreover, $\omega^*, \alpha^*, \beta^*$ satisfy the **Karush-Kuhn-Tucker (KKT) conditions**, which are as follows:
+$$
+\begin{aligned}
+\frac{\partial}{\partial \omega_i}\mathcal{L}(\omega^*, \alpha^*, \beta^*) = 0 \;\;\; i = 1, \cdots, d \\
+\frac{\partial}{\partial \beta_i}\mathcal{L}(\omega^*, \alpha^*, \beta^*) = 0 \;\;\; i = 1, \cdots, l \\
+\alpha_i^*g_i(\omega^*) = 0 \;\;\; i = 1, \cdots, k \\
+g_i(\omega^*) \le 0 \;\;\; i = 1, \cdots, k \\
+\alpha_i^* \ge 0 \;\;\; i = 1, \cdots, k 
+\end{aligned}
+$$
+Also, we have:
+$$
+\omega^*, \alpha^*, \beta^* \text{are the solution to the dual and primal problem correspondingly} \\
+\iff \omega^*, \alpha^*, \beta^* \text{satisfy the KKT conditions}
+$$
+
+We should draw attention to the third condition, **$\alpha_i^*g_i(\omega^*) = 0$**, which is called the 
+**KKT dual complementarity** condition. Specifically, it implies that if $\alpha_i^* > 0$, then $g_i(\omega^*) = 0$.
+
+### Optimal Margin Classifiers ###
+
+Previous in the session of functional and geometric margin, we posed the following primal optimization problem for 
+finding the optimal margin classifier:
+$$
+\begin{aligned}
+\min_{\gamma, \omega, b} & \frac{1}{2} \|\omega\|^2 \\
+s.t. & y_i(\omega^Tx_i + b) \ge 1, \;\;\; i = 1, \cdots, m 
+\end{aligned}
+$$
+Because in generalized Lagrangian we always have $\le$ inequality, we can write the constraints as:
+$$
+g_i(\omega) = - y_i(\omega^Tx_i + b) + 1 \le 0
+$$
+We have one such constraint for each training example. Note that from the KKT dual complementarity condition, we will 
+have $\alpha_i > 0$ only for the training examples that have functional margin exactly equal to 1. Those points are
+called the **support vectors**
+
+Now we construct the Lagrangian for our optimization problem:
+$$
+\mathcal{L}(\omega, b, \alpha) = \frac{1}{2}\|\omega\|^2 - \sum_{i=1}^m \alpha_i[y_i(\omega^Tx_i + b) - 1]
+$$
+Let's find the dual form first.
+
+#### Why dual form not primal form ####
+
+dual and primal problems are two different ways to solve the optimization problem right above. If we try the primal
+form first, then we have to try to find out the $\theta_{\mathcal{P}}(\omega)$ which is the maximum of $\mathcal{L}$ over 
+$\alpha$ for a given $\omega$.
+It is easy to find that this maximization cannot be solved by taking the derivative with respect to $\alpha$
+
+Then we are thinking if we can solve the dual form under specific conditions, then the solution to dual form will also be
+the solution to the primal problem. So that is why we are considering the dual form now.
+
+#### Dual form to primal form ####
+
+We need to minimize $\mathcal{L}(\omega, b, \alpha)$ with respect to $\omega$ and $b$
+for fixed $\alpha$ to get $\theta_{\mathcal{D}}$. So we can have:
+$$
+\bigtriangledown_{\omega} \mathcal{L}(\omega, b, \alpha) = \omega - \sum_{i=1}^m\alpha_iy_ix_i = 0
+$$
+This implies that 
+$$
+\omega = \sum_{i=1}^m \alpha_iy_ix_i
+$$
+As for the derivative with respect to $b$, we obtain
+$$
+\frac{\partial}{\partial b} \mathcal{L}(\omega, b, \alpha) = \sum_{i=1}^m\alpha_iy_i = 0
+$$
+
+If we take the definition of $\omega =\sum_{i=1}^m \alpha_iy_ix_i$ and plug that back into the $\mathcal{L}$,
+also replace $\sum_{i=1}^m \alpha_iy_i$ with 0. Then we have:
+$$
+\begin{aligned}
+\mathcal{L}(\omega, b, \alpha) & = \frac{1}{2}\omega^T\omega - \sum_{i=1}^m\alpha_iy_i\omega^Tx_i - 
+b\sum_{i=1}^m\alpha_iy_i + \sum_{i=1}^m\alpha_i \\
+& = \sum_{i=1}^m\alpha_i +\omega^T(\frac{1}{2}\omega - \sum_{i=1}^m\alpha_iy_ix_i) \\
+& = \sum_{i=1}^m\alpha_i +\omega^T(\frac{1}{2}\omega - \omega) \\
+& = \sum_{i=1}^m\alpha_i - \frac{1}{2}\omega^T\omega \\
+& = \sum_{i=1}^m\alpha_i - \frac{1}{2}(\sum_{i=1}^m\alpha_iy_ix_i)^T(\sum_{j=1}^m\alpha_jy_jx_j) \\
+& = \sum_{i=1}^m\alpha_i - \frac{1}{2}\sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j x_i^Tx_j
+\end{aligned}
+$$
+
+Then the next step is to maximize the $\mathcal{L}$ in the above form. Putting this together with constraints $\alpha_i \ge 0$
+we obtain the following dual optimization problem:
+$$
+\begin{aligned}
+\max_{\alpha} & W(\alpha) = \sum_{i=1}^m\alpha_i - \frac{1}{2} \sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j 
+\langle x_i, x_j \rangle \\
+s.t. & \alpha_i \ge 0 \;\;\; i = 1, \cdots, m \\
+& \sum_{i=1}^m \alpha_iy_i = 0
+\end{aligned}
+$$
+More important, 
+the conditions for $p^* = d^*$
+- $f$ and $g_i$'s are convex
+- $h_i$'s are affine, which means there exists $a_i$ and $b_i$ so that $h_i(\omega) = a_i^T\omega + b_i$. Affine means the same
+thing as linear, except that we also allow the extra intercept term $b_i$
+- constraints $g_i$ are strictly feasible, which means there exists some $\omega$ so that $g_i(\omega) < 0$ for all $i$.
+
+and the KKT conditions: 
+```
+(I should add more intuition here!!!)
+```
+- No matter what $\alpha$ we found, $\omega = \sum_{i=1}^m \alpha_i y_i$ is the solution to 
+$\bigtriangledown_{\omega} \mathcal{L}(\omega, b, \alpha) = 0$. Same for the $b$. This makes the first KKT condition to be valid.
+- Second KKT condition we do not have here since we do not have equality constraint. Wen only have $\alpha$ here.
+- $g_i(\omega) = - y_i(\omega^Tx_i + b) + 1 \le 0$ is satisfied here.
+- We have $\alpha_i \ge 0$
+- $\alpha_ig_i(\omega) = 0$ is satisfied when construct the Lagrangian for our optimization problem 
+
+to hold are indeed satisfied in this optimization problem. 
+
+Suppose we are indeed able to solve the above maximization problem with respect to $\alpha$, then we can use 
+$\omega = \sum_{i=1}^m \alpha_i y_ix_i$ to go back and find the $\omega^*$. Using $\alpha^*$ and $\omega^*$, then we solve the $b^*$
+by 
+$$
+b^* = \arg\min_{b}\mathcal{L}(\omega^*, b, \alpha^*) = -\frac{\max_{i:y_i=-1}\omega^{*T}x_i + \min_{i:y_i=1}\omega^{*T}x_i}{2}
+$$
+```
+I should add more intuition here!!!
+```
+
+Moreover, if we take a more careful look at the $\omega = \sum_{i=1}^m \alpha_i y_ix_i$. Suppose we have fit our model's 
+parameters to a training set, and now wish to make a prediction at a new point input $x_{\text{new}}$. We would then calculate 
+$\omega^Tx_{\text{new}} +b$:
+$$
+\begin{aligned}
+\omega^Tx_{\text{new}} + b = & \left( \sum_{i=1}^m \alpha_iy_ix_i\right)^T x_{\text{new}} + b \\
+& = \sum_{i=1}^m \alpha_iy_i \langle x_i, x_{\text{new}}\rangle + b
+\end{aligned}
+$$
+
+Hence, if we have found the $\alpha_i$'s, in order to make a prediction, we have to calculate a quantity that depends only on 
+the inner product between $x_{\text{new}}$ and the points in the training set. And we know that the $\alpha_i$'s will all be
+zero except for the support vectors. Thus many of the terms in the sum above will be zero, and we only need to find the inner
+products between $x_{\text{new}}$ and the support vectors.
+
 ### Kernel ###
 
-Kernel methods owe their name to the use of kernel functions, which enable them to operate in a 
+As we noticed in the previous session, only the inner products between $x_{\text{new}}$ and the support vectors is need for 
+prediction of new observation. So applying Kernels to our classification problem will be able to efficiently learn in very 
+high dimensional spaces.
+
+##### Feature mapping ####
+
+First of all, let's talk a little about **attributes** and **features**.
+- **attributes**: is the original input value, like $x$
+- **features**: is the original input $x$ is mapped to some new set of quantities that are then passed to the model, like
+$x$, $x^2$, $x^3$
+We also let $\phi$ denote the **feature mapping** which maps from the attributes to the features. For example, we can 
+have 
+$$\phi(x) = [x \;\;\; x^2 \;\;\; x^3]^T$$
+
+So rather than applying SVM using the original input attributes $x$, we may instead want to learn using some features 
+$\phi(x)$. To do so, we simply need to go over our previous algorithm and replace $x$ everywhere in it with $\phi(x)$.
+
+#### Kernel and mapping ####
+
+Since the prediction of new point can be written entirely in terms of the inner products 
+$\langle x_i, x_{\text{new}}\rangle$, this means that we would replace all those inner products with 
+$\langle \phi(x_i), \phi(x_{\text{new}})\rangle$. Specifically, given a feature mapping $\phi$, we define the 
+**corresponding Kernel** to be
+$$
+K(x_i, x_{\text{new}}) = \phi(x_i)^T\phi(x_{\text{new}})
+$$
+Then everywhere we previously had $\langle x_i, x_{\text{new}}\rangle$ in our algorithm, we could simply replace it
+with $K(x_i, x_{\text{new}})$, and the algorithm would now be learning using the features $\phi$.
+
+Now, given $\phi$, we could easily compute $K(x_i, x_{\text{new}})$ by finding $\phi(x_i)$ and $\phi(x_{\text{new}})$
+and taking their inner product. On the other hand, for a given $K(\cdot, \cdot)$, we also could find a $\phi$ which is
+one-to-one correspondent to it. So there is a one-to-one correspondence between a feature mapping to a Kernel. What is
+more interesting is that often, $K(x_i, x_{\text{new}})$ may be very inexpensive to calculate, even though $\phi(x)$
+itself may be very expensive to calculate, perhaps because it is an extremely high dimensional vector. 
+
+In such settings, by using in SVM an efficient way to calculate kernel $K(\cdot, \cdot)$, we can get SVM to learn 
+in the high dimensional feature space given by $\phi$ but without ever having to calculate the $\phi(x)$.
+For example, suppose $x,z \in \mathbb{R}^d$, and we define the kernel as:
+$$
+K(x,z) = (x^Tz)^2
+$$
+We can also write this as:
+$$
+\begin{aligned}
+K(x,z) & = \left( \sum_{i=1}^d x_iz_i \right)\left( \sum_{i=1}^d x_iz_i \right) \\
+& = \sum_{i=1}^d \sum_{j=1}^d (x_ix_j)(z_iz_j)
+\end{aligned}
+$$
+Thus we see that $K(x,z) =  \phi(x)^T\phi(z)$, where the feature mapping $\phi$ is (shown here for the case of $d=3$):
+$$
+\phi(x) = [x_1x_1 \;\; x_1x_2 \;\; x_1x_3 \;\; x_2x_1 \;\; x_2x_2 \;\; x_2x_3 \;\; x_3x_1 \;\; x_3x_2 \;\; x_3x_3]^T
+$$
+So the $\phi(x)$ is a mapping: $\mathbb{R}^d \to \mathbb{R}^{d^2}$.
+Note that whereas calculating the high-dimensional $\phi(x)$ requires $O(n^2)$ time, however finding $K(x,z)$ takes
+only $O(n)$ time.
+
+In summary, Kernel methods owe their name to the use of kernel functions, which enable them to operate in a 
 high-dimensional, implicit feature space without ever computing the coordinates of the data in that 
 space, but rather by simply computing the inner products between the images of all pairs of data in the
 feature space. This operation is often computationally cheaper than the explicit computation of the 
 coordinates. This approach is called the "kernel trick". 
+
+From a different view of kernels, if $\phi(x)$ and $\phi(z)$ are close together, then we might expect $K(x,z) = \phi(x)^T\phi(z)$
+to be large. COnversely, if $phi(x)$ and $\phi(z)$ are far apart, say nearly orthogonal to each other, then 
+$K(x,z) = \phi(x)^T\phi(z)$ will be small. So we can think of $K(x,z)$ as some measurement of how similar are
+$\phi(x)$ and $\phi(z)$, or of how similar are $x$ and $z$.
+
+Since there is a one-to-one correspondence between a feature mapping to a Kernel, we can either define a feature mapping
+and then find the corresponding Kernel, or define a Kernel then find the corresponding mapping. But most of time
+people prefer the second way, given some function $K$, how can we tell if it is a valid kernel, which means how can we 
+tell if there is some feature mapping $\phi$ corresponds to it?
+
+#### Kernel matrix ####
+
+Suppose for now that $K(\cdot, \cdot)$ is indeed a valid kernel corresponding to some feature mapping $\phi$. We define a 
+square, m-by-m matrix $K$ that its $(i,j)$-entry is given by $K_{ij} = K(x_i, x_j)$. This matrix is called the **Kernel matrix**.
+- Kernel matrix must be symmetric since $K_{ij} = K(x_i, x_j) = \phi(x_i)^T\phi(x_j) =  \phi(x_j)^T\phi(x_x) = K(x_j, x_i) = K_{ji}$ 
+- Kernel matrix is positive semi-definite, since for any vector $z$, we have 
+$z^TKz = \sum_i\sum_j z_iK_{ij}z_j = \sum_k\left(\sum_i z_i\phi_k(x_i)\right)^2 \ge 0$, $k$ here is the index for $k$-th 
+coordinate of the vector $\phi(x)$.
+
+**Theorem (Mercer)**
+Let $K: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}$ be given. Then for $K$ to be a valid kernel, it is necessary and
+sufficient that for any ${x_i, \cdots, x_m}$, the corresponding kernel matrix is symmetric positive semi-definite.
 
 ## Non-linearly Separable ##
 
@@ -267,4 +552,9 @@ $r_i = C \Rightarrow \xi_i = 0 \Rightarrow y_i(x^Tx + b) > 1$
 $y_i(x^Tx + b) - 1 + \xi_i = 0 \Rightarrow y_i(x^Tx + b) < 1$
 - If $0 < \alpha_i < C$, then $y_i(x^Tx + b) - 1 + \xi_i = 0$, and $r_i \ne 0 \Rightarrow \xi_i = 0$.
 So $y_i(x^Tx + b) = 1$
-## Algorithm ##
+
+## SMO Algorithm ##
+
+### Coordinate Ascent ###
+
+### SMO ###
