@@ -57,7 +57,9 @@ higher-dimensional space, presumably making the separation easier in that space.
 The hyperplanes in the higher-dimensional space are defined as the set of points whose dot product
 with a vector in that space is constant.
 
-### Distance from Point to A Plane ###
+### Some Facts of Geometric ###
+
+#### Distance from point to a plane ####
 
 First of all, we have to recall that one plane in Euclidean Space can be expressed as:
 $$
@@ -75,6 +77,7 @@ $$
 Dist = \|Proj_{\omega}(x_0 - x_1)\| = \frac{\|\omega^T(x_0 - x_1)\|}{\|\omega\|} = \frac{\|\omega^Tx_0 + b\|}{\|\omega\|}
 $$
 
+#### Inner product ####
 
 ### Functional and Geometric Margins ###
 
@@ -356,7 +359,7 @@ As we noticed in the previous session, only the inner products between $x_{\text
 prediction of new observation. So applying Kernels to our classification problem will be able to efficiently learn in very 
 high dimensional spaces.
 
-##### Feature mapping ####
+#### Feature mapping ####
 
 First of all, let's talk a little about **attributes** and **features**.
 - **attributes**: is the original input value, like $x$
@@ -414,8 +417,10 @@ space, but rather by simply computing the inner products between the images of a
 feature space. This operation is often computationally cheaper than the explicit computation of the 
 coordinates. This approach is called the "kernel trick". 
 
+#### Different view of Kernel ####
+
 From a different view of kernels, if $\phi(x)$ and $\phi(z)$ are close together, then we might expect $K(x,z) = \phi(x)^T\phi(z)$
-to be large. COnversely, if $phi(x)$ and $\phi(z)$ are far apart, say nearly orthogonal to each other, then 
+to be large. Conversely, if $\phi(x)$ and $\phi(z)$ are far apart, say nearly orthogonal to each other, then 
 $K(x,z) = \phi(x)^T\phi(z)$ will be small. So we can think of $K(x,z)$ as some measurement of how similar are
 $\phi(x)$ and $\phi(z)$, or of how similar are $x$ and $z$.
 
