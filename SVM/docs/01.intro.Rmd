@@ -57,7 +57,7 @@ higher-dimensional space, presumably making the separation easier in that space.
 The hyperplanes in the higher-dimensional space are defined as the set of points whose dot product
 with a vector in that space is constant.
 
-### Some Facts of Geometric ###
+### Some Facts of Geometry ###
 
 #### Distance from point to a plane ####
 
@@ -74,10 +74,25 @@ hyperplane. Then we have a vector $x_0 - x_1$, and the distance between $x_0$ an
 the norm of the projection of vector $x_0 - x_1$ to the **normal** of the plane ($\omega$). And we know that
 the projection is just the inner product of two vectors.
 $$
-Dist = \|Proj_{\omega}(x_0 - x_1)\| = \frac{\|\omega^T(x_0 - x_1)\|}{\|\omega\|} = \frac{\|\omega^Tx_0 + b\|}{\|\omega\|}
+Dist = \|\text{Proj}_{\omega}(x_0 - x_1)\| = \frac{\|\omega^T(x_0 - x_1)\|}{\|\omega\|} = \frac{\|\omega^Tx_0 + b\|}{\|\omega\|}
 $$
 
 #### Inner product ####
+
+Inner product is one of the most important concept in the Geometry. We know that we define the inner product as:
+$$
+x \cdot y = x^Ty = \sum_{i=1}^d x_iy_i
+$$
+This can be also expressed as:
+$$
+x \cdot y = \text{Proj}_{y}(x) \|y\| = \text{Proj}_{x}(y) \|x\|
+$$
+Here $\text{Proj}_{y}(x)$ means the **projection of x vector on y vector**. In the previous session, we have already seen
+that the distance from a point to a hyperplane can be illustrated as a inner product between the normal vector $\omega$
+and the point itself plus a constant scale $b$. Here is one of **important insight about SVM** is that:
+- If a point is very close to a hyperplane, the projection of the point to the normal vector should be very small
+- however, if a point is far away from the hyperplane, then the projection of the point to the normal should be very large.
+
 
 ### Functional and Geometric Margins ###
 
@@ -508,6 +523,11 @@ narrow margin in order to avoid margin violation or misclassification.
 - If C is $\infty$, then all constraints are enforced to be satisfied, which called hard margin. In this extreme
 case, we do not have soft margin solution, and which goes back to original SVM.
 
+The value of C can also be viewed as a way to trade off between overfitting (high variance) and underfitting (high 
+bias). 
+- If C is too small, it will cause the overfitting problem
+- If C is too large, it will then cause the underfitting problem.
+
 Then the optimization problem can be reformed using **Lagrange multipliers** method. Let us define 
 the **Lagrangian** to be:
 
@@ -557,6 +577,8 @@ $r_i = C \Rightarrow \xi_i = 0 \Rightarrow y_i(x^Tx + b) > 1$
 $y_i(x^Tx + b) - 1 + \xi_i = 0 \Rightarrow y_i(x^Tx + b) < 1$
 - If $0 < \alpha_i < C$, then $y_i(x^Tx + b) - 1 + \xi_i = 0$, and $r_i \ne 0 \Rightarrow \xi_i = 0$.
 So $y_i(x^Tx + b) = 1$
+
+### SVM and Logistic Regression ###
 
 ## SMO Algorithm ##
 

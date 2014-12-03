@@ -83,7 +83,7 @@
 
 
       <li class='active'>
-         <a target='_self' class='nav-not-header' href='#some-facts-of-geometric'>Some Facts of Geometric</a>
+         <a target='_self' class='nav-not-header' href='#some-facts-of-geometry'>Some Facts of Geometry</a>
       </li>
 
 
@@ -121,6 +121,11 @@
 
       <li class='active'>
          <a target='_self' class='nav-not-header' href='#regularization'>Regularization</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#svm-and-logistic-regression'>SVM and Logistic Regression</a>
       </li>
 
 
@@ -206,8 +211,8 @@ with a vector in that space is constant.</p>
 </div>
 
 
-<div class='tab-pane' id='some-facts-of-geometric'>
-<h3>Some Facts of Geometric</h3>
+<div class='tab-pane' id='some-facts-of-geometry'>
+<h3>Some Facts of Geometry</h3>
 
 <h4>Distance from point to a plane</h4>
 
@@ -224,10 +229,27 @@ hyperplane. Then we have a vector \(x_0 - x_1\), and the distance between \(x_0\
 the norm of the projection of vector \(x_0 - x_1\) to the <strong>normal</strong> of the plane (\(\omega\)). And we know that
 the projection is just the inner product of two vectors.
 \[
-Dist = \|Proj_{\omega}(x_0 - x_1)\| = \frac{\|\omega^T(x_0 - x_1)\|}{\|\omega\|} = \frac{\|\omega^Tx_0 + b\|}{\|\omega\|}
+Dist = \|\text{Proj}_{\omega}(x_0 - x_1)\| = \frac{\|\omega^T(x_0 - x_1)\|}{\|\omega\|} = \frac{\|\omega^Tx_0 + b\|}{\|\omega\|}
 \]</p>
 
 <h4>Inner product</h4>
+
+<p>Inner product is one of the most important concept in the Geometry. We know that we define the inner product as:
+\[
+x \cdot y = x^Ty = \sum_{i=1}^d x_iy_i
+\]
+This can be also expressed as:
+\[
+x \cdot y = \text{Proj}_{y}(x) \|y\| = \text{Proj}_{x}(y) \|x\|
+\]
+Here \(\text{Proj}_{y}(x)\) means the <strong>projection of x vector on y vector</strong>. In the previous session, we have already seen
+that the distance from a point to a hyperplane can be illustrated as a inner product between the normal vector \(\omega\)
+and the point itself plus a constant scale \(b\). Here is one of <strong>important insight about SVM</strong> is that:</p>
+
+<ul>
+<li>If a point is very close to a hyperplane, the projection of the point to the normal vector should be very small</li>
+<li>however, if a point is far away from the hyperplane, then the projection of the point to the normal should be very large.</li>
+</ul>
 
 </div>
 
@@ -705,6 +727,14 @@ narrow margin in order to avoid margin violation or misclassification.</li>
 case, we do not have soft margin solution, and which goes back to original SVM.</li>
 </ul>
 
+<p>The value of C can also be viewed as a way to trade off between overfitting (high variance) and underfitting (high 
+bias). </p>
+
+<ul>
+<li>If C is too small, it will cause the overfitting problem</li>
+<li>If C is too large, it will then cause the underfitting problem.</li>
+</ul>
+
 <p>Then the optimization problem can be reformed using <strong>Lagrange multipliers</strong> method. Let us define 
 the <strong>Lagrangian</strong> to be:</p>
 
@@ -757,6 +787,12 @@ Then, we can have </p>
 <li>If \(0 < \alpha_i < C\), then \(y_i(x^Tx + b) - 1 + \xi_i = 0\), and \(r_i \ne 0 \Rightarrow \xi_i = 0\).
 So \(y_i(x^Tx + b) = 1\)</li>
 </ul>
+
+</div>
+
+
+<div class='tab-pane' id='svm-and-logistic-regression'>
+<h3>SVM and Logistic Regression</h3>
 
 </div>
 
