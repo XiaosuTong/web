@@ -534,7 +534,7 @@ the **Lagrangian** to be:
 $$
 \begin{aligned}
 \mathcal{L}(\omega, b, \xi, \alpha, r) = \frac{1}{2}\omega^T\omega + C\sum_{i=1}^m\xi_i - 
-\sum_{i=1}^m\alpha_i[y_i(x^Tx + b) - 1 + \xi_i] - \sum_{i=1}^mr_i\xi_i
+\sum_{i=1}^m\alpha_i[y_i(w^Tx_i + b) - 1 + \xi_i] - \sum_{i=1}^mr_i\xi_i
 \end{aligned}
 $$
 
@@ -543,7 +543,7 @@ All optimal solutions must satisfy Karush-Kuhn-Tucker (KKT) conditions:
 
 $$
 \begin{aligned}
-\frac{\partial}{\partial \omega}\mathcal{L} = 0 \\
+\frac{\partial}{\partial \omega}\mathcal{L} =  \omega - \sum_{i=1}^m \alpha_i y_i x_i = 0 \\
 \frac{\partial}{\partial b}\mathcal{L} = \sum_{i=1}^m \alpha_i y_i = 0 \\
 \frac{\partial}{\partial \xi_i}\mathcal{L} = C - \alpha_i - r_i = 0 & \;\;\; i = 1, 2, \cdots, m \\
 \alpha_i[y_i(x^Tx + b) - 1 + \xi_i] = 0 & \;\;\; i = 1, 2, \cdots, m \\
@@ -563,6 +563,33 @@ The optimality conditions are both necessary and sufficient. If we have
 $C$, $\xi$, b, $\alpha$, and r satisfying the above conditions, we know that they represent optimal 
 solutions to the primal and dual problems.
 
+#### In summary ####
+
+The regularization problem can be written as following:
+
+We plug into $\mathcal{L}(\omega, b, \xi, \alpha, r)$ with $\omega = \sum_{i=1}^m \alpha_i y_i x_i$,
+$\sum_{i=1}^m \alpha_i y_i = 0$, and $C - \alpha_i - r_i = 0$
+
+$$
+\begin{aligned}
+\mathcal{L}(\omega, b, \xi, \alpha, r) & = \frac{1}{2}\omega^T\omega + \sum_{i=1}^m\alpha_i - \sum_{i=1}^m\alpha_iy_i
+\omega^Tx_i - \sum_{i=1}^m\alpha_iy_ib + \sum_{i=1}^m(C - \alpha_i -r_i)\xi_i \\
+& = \sum_{i=1}^m \alpha_i + \frac{1}{2}\omega^T\omega - \omega^T\omega \\
+& = \sum_{i=1}^m \alpha_i - \frac{1}{2}\sum_{i=1}^m \sum_{j=1}^m \alpha_i \alpha_j y_iy_j \langle x_i, x_j \rangle \\
+& = e^T\alpha - \frac{1}{2}\alpha^TQ\alpha
+\end{aligned}
+$$
+where $e$ is the vector of all ones, $\alpha$ is the vector of all $\alpha_i$. $Q_{ij} = y_iy_jK(x_i,x_j)$.
+Then the optimization problem is:
+$$
+\begin{aligned}
+\max_{\alpha} & W(\alpha) = \sum_{i=1}^m\alpha_i - \frac{1}{2} \sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j 
+\langle x_i, x_j \rangle \\
+s.t. & 0 \le \alpha_i \le C \;\;\; i = 1, \cdots, m \\
+& \sum_{i=1}^m \alpha_iy_i = 0
+\end{aligned}
+$$
+
 Also among all conditions, the KKT dual-complementarity conditions are:
 $$
 \begin{aligned}
@@ -580,8 +607,62 @@ So $y_i(x^Tx + b) = 1$
 
 ### SVM and Logistic Regression ###
 
+There are a lot of similarity between the SVM and the logistic regression. In the logistic regression, we have our 
+
 ## SMO Algorithm ##
 
 ### Coordinate Ascent ###
 
+Consider trying to solve the unconstrained optimization problem
+$$
+\max_{\alpha}W(\alpha_1, \alpha_2,\cdots,\alpha_m)
+$$
+we are going to consider an algorithm named **coordinate ascent**:
+
+$$
+\begin{aligned}
+&\text{Loop unitl convergence:} \{ \\
+&\;\;\;\text{For} \; i = 1, \cdots, m \{ \\
+&\;\;\;\;\;\; \alpha_i = \arg\max_{\alpha_i}W(\alpha_1,\cdots,\alpha_{i-1},\hat\alpha_i, \alpha_{i+1}, 
+\cdots,\alpha_m) \\
+&\;\;\;\} \\
+&\}
+\end{aligned}
+$$
+
+It is easy to find that in each iteration, we update $W$ with respect to one of the $\alpha_i$, then
+we have a new $W$ value with new $\hat \alpha_i$ plugged in. And then we update the new 
+$W(\hat \alpha_i)$ with respect to the next $\alpha_{i+1}$ until all $\alpha_i$ have been updated. Those
+all happened for every iteration.
+
+#### Gradient ascent ####
+
+Gradient ascent is a little different than coordinate ascent. In coordinate ascent, we update all $\alpha_i$ one by one in each iteration. In other words, we updated the objective function by plugging
+in the new estimate $\hat \alpha_i$.
+
+On the other hand, gradient ascent will update all $\alpha_i$ simultaneously within each iteration.
+$$
+\begin{aligned}
+&\text{Loop unitl convergence:} \{ \\
+&\;\;\;\;\;\; \alpha_1 = \arg\max_{\alpha_1}W(\alpha_1,\cdots,\alpha_m) \\
+&\;\;\;\;\;\; \cdots \\
+&\;\;\;\;\;\; \alpha_m = \arg\max_{\alpha_m}W(\alpha_1,\cdots,\alpha_m) \\
+&\}
+\end{aligned}
+$$
+
+
 ### SMO ###
+
+The (dual) optimization problem that we want to solve:
+$$
+\begin{aligned}
+\max_{\alpha} & W(\alpha) = \sum_{i=1}^m\alpha_i - \frac{1}{2} \sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j 
+\langle x_i, x_j \rangle \\
+s.t. & 0 \le \alpha_i \le C \;\;\; i = 1, \cdots, m \\
+& \sum_{i=1}^m \alpha_iy_i = 0
+\end{aligned}
+$$
+Let's say we have set of $\alpha_i$'s that satisfy the two constrints. Now, suppose we want to hold 
+$\alpha_2, \cdots, \alpha_m$ fixed, and take a coordinate ascent step and reoptimize the objective with
+respect to $\alpha_1$
