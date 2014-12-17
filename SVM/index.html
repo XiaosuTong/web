@@ -851,21 +851,68 @@ we have a new \(W\) value with new \(\hat \alpha_i\) plugged in. And then we upd
 \(W(\hat \alpha_i)\) with respect to the next \(\alpha_{i+1}\) until all \(\alpha_i\) have been updated. Those
 all happened for every iteration.</p>
 
+<p>Coordinate descent is a non-derivative optimization algorithm. To find a local minimum of a function,
+we do <strong>line search along one coordinate direction</strong>, which is one \(\alpha_i\), at the current point in each 
+iteration. We use different coordinate directions cyclically throughout the procedure.</p>
+
 <h4>Gradient ascent</h4>
 
-<p>Gradient ascent is a little different than coordinate ascent. In coordinate ascent, we update all \(\alpha_i\) one by one in each iteration. In other words, we updated the objective function by plugging
-in the new estimate \(\hat \alpha_i\).</p>
+<p>Gradient ascent is a little different than coordinate ascent. 
+To find a local minimum of a function using gradient descent, we take steps proportional to the negative 
+of the gradient (or of the approximate gradient) of the function at the current point. If instead we take 
+steps proportional to the positive of the gradient, one approaches a local maximum of that function; the 
+procedure is then known as gradient ascent.</p>
+
+<p>In coordinate ascent, we update all \(\alpha_i\) one by one in each iteration. In other words, we updated 
+the objective function by plugging in the new estimate \(\hat \alpha_i\).</p>
 
 <p>On the other hand, gradient ascent will update all \(\alpha_i\) simultaneously within each iteration.
 \[
 \begin{aligned}
 &\text{Loop unitl convergence:} \{ \\
-&\;\;\;\;\;\; \alpha_1 = \arg\max_{\alpha_1}W(\alpha_1,\cdots,\alpha_m) \\
+&\;\;\;\;\;\; \alpha_1 = \alpha_1 + \gamma \frac{\partial}{\partial \alpha_1}W \\
 &\;\;\;\;\;\; \cdots \\
-&\;\;\;\;\;\; \alpha_m = \arg\max_{\alpha_m}W(\alpha_1,\cdots,\alpha_m) \\
+&\;\;\;\;\;\; \alpha_d = \alpha_d + \gamma \frac{\partial}{\partial \alpha_d}W \\
 &\}
 \end{aligned}
-\]</p>
+\]
+where \(\gamma\) is the  a step size (sometimes called the learning rate in machine learning). Here the dimension
+of \(\alpha\) is same as the \(x_i\), previously in SVM we have dimension of \(\alpha\) is \(m\) which is the number 
+of data point.</p>
+
+<h4>Stochastic gradient ascent</h4>
+
+<p>Here is an extension of gradient ascent which called stochastic gradient ascent. Back to gradient ascent,
+the gradient \(\partial W / \partial\alpha_i\) should be calculated based on all data \(x_i\), like in the linear
+regression, gradient is 
+\[
+\frac{\partial}{\partial\alpha_j} W = \frac{1}{m}\sum_{i=1}^m (W(x_i) - y_i)x_{ij}
+\]
+Every time when we update one \(\alpha_i\), we have to scan the whole dataset into memory. When the dataset is 
+large, this is extremely inefficient.</p>
+
+<p>Another method which can overcome this problem is called stochastic gradient ascent. Still take the linear 
+regression as example. Previously, the objective cost function is a summation of error square for each data
+point. So each data point we have an objective term: \(W_i = \frac{1}{2}(W(x_i) - y_i)^2\), and the gradients are
+\[
+\frac{\partial}{\partial\alpha_j} W_i = (W(x_i) - y_i)x_{ij}
+\]
+So we have an objective function for each data point. Then for each objective function, we can update every
+\(\alpha_i\).
+\[
+\begin{aligned}
+& \text{First randomly shuffle dataset} \\
+& \text{Loop unitl convergence:} \{ \\
+& \;\;\;\;\;\; \text{For} i = 1, \cdots, m \{ \\
+& \;\;\;\;\;\;\;\;\; \alpha_1 = \alpha_1 + \gamma \frac{\partial}{\partial \alpha_1} W_i \\ 
+& \;\;\;\;\;\;\;\;\; \cdots \\
+& \;\;\;\;\;\;\;\;\; \alpha_d = \alpha_d + \gamma \frac{\partial}{\partial \alpha_d} W_i \\
+& \;\;\;\;\;\; \} \\
+& \}
+\end{aligned}
+\]
+Learning rate \(\gamma\) is typically held constant, but can also slowly decreased over iteration time if we want
+\(\alpha\) to converge, like \(\gamma = \frac{constant1}{iterationtime + constant2}\).</p>
 
 </div>
 
