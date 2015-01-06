@@ -137,7 +137,12 @@
 
 
       <li class='active'>
-         <a target='_self' class='nav-not-header' href='#smo'>SMO</a>
+         <a target='_self' class='nav-not-header' href='#smo-procedure'>SMO Procedure</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#smo-in-r'>SMO in R</a>
       </li>
 
    </ul>
@@ -917,21 +922,273 @@ Learning rate \(\gamma\) is typically held constant, but can also slowly decreas
 </div>
 
 
-<div class='tab-pane' id='smo'>
-<h3>SMO</h3>
+<div class='tab-pane' id='smo-procedure'>
+<h3>SMO Procedure</h3>
 
 <p>The (dual) optimization problem that we want to solve:
 \[
 \begin{aligned}
-\max_{\alpha} & W(\alpha) = \sum_{i=1}^m\alpha_i - \frac{1}{2} \sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j 
-\langle x_i, x_j \rangle \\
+\min_{\alpha} & W(\alpha) = \frac{1}{2} \sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j 
+\langle x_i, x_j \rangle - \sum_{i=1}^m\alpha_i \\
 s.t. & 0 \le \alpha_i \le C \;\;\; i = 1, \cdots, m \\
 & \sum_{i=1}^m \alpha_iy_i = 0
 \end{aligned}
 \]
-Let&#39;s say we have set of \(\alpha_i\)&#39;s that satisfy the two constrints. Now, suppose we want to hold 
-\(\alpha_2, \cdots, \alpha_m\) fixed, and take a coordinate ascent step and reoptimize the objective with
-respect to \(\alpha_1\)</p>
+Let&#39;s say we have set of \(\alpha_i\)&#39;s that satisfy the two constrints. Then our plan is to use coordinate descent 
+to solve the optimization problem. Recall that in the corrdinate ascent/descent method, we only update one \(\alpha_i\)
+and fix the rest of \(\alpha\) to be constant each time. Here we have one problem if we follow the original coordinate
+descent. Becasue of the linear constraint of all \(\alpha_i\), a linear combination of any two \(\alpha_i\) will be a 
+constant. So we have to update two \(\alpha_i\) in each step of coordinate descent.</p>
+
+<p>Every step of SMO, we selection some pair of \(\alpha_i\) and \(\alpha_j\) to update next, and then reoptimize \(W(\alpha)\)
+with respect to \(\alpha_i\) and \(\alpha_j\), while holding all the other \(\alpha\)&#39;s fixed.</p>
+
+<h4>How it works:</h4>
+
+<p>Later on we will discuss how to choose these two \(\alpha_i\)&#39;s, here let&#39;s assume we want to work on \(\alpha_1\) and 
+\(\alpha_2\). So we fix \(\alpha_3, \cdots, \alpha_m\), also we assume that the initial value of \(\alpha\) satisfy
+\[
+\sum_{i=1}^m \alpha_iy_i = 0
+\]
+Then we will have
+\[
+\alpha_1y_1 + \alpha_2y_2 = \xi
+\]
+Here \(\xi\) is a constant. Suppose \(\alpha_1\) and \(\alpha_2\) are the updated value in \(k\)&#39;th step, and 
+\(\alpha_1^*\) and \(\alpha_2^*\) are the value in \((k-1)\)&#39;th step, and we assume that all \(\alpha_i^*\) 
+satisfy the two constraints in the original problem. So we are trying to update from 
+\(\alpha_1^*\) and \(\alpha_2^*\) to \(\alpha_1\) and \(\alpha_2\). Still we have following linear constraint for
+old \(\alpha\)&#39;s:
+\[
+\alpha_1y_1 + \alpha_2y_2 = \alpha_1^*y_1 + \alpha_2^*y_2 = \xi
+\]
+So, our SMO procedure basically is trying to calculate \(\alpha_1\) and \(\alpha_2\) given \(\alpha_1^*\) and
+\(\alpha_2^*\) in each step. Let \(s = y_1y_2\), and \(y_1y_1 = y_2y_2 =1\). Then multiply \(y_1\) on each side
+of above constraint we have:
+\[
+\alpha_1 + s\alpha_2 = \alpha_1^* + s\alpha_2^* = \xi = -y_1 \sum_{i=3}^m y_i\alpha_i^*
+\]
+We also have:
+\[
+\alpha_1 = \xi - s\alpha_2
+\]
+Further more, we define the following variables:
+\[
+u_1 = \sum_{i=1}^m y_i\alpha_i^*K(x_i,x_1) + b^* \;\;\;\; \text{and} \;\;\;\;
+u_2 = \sum_{i=1}^m y_i\alpha_i^*K(x_i,x_2) + b^* 
+\]
+It is not hard to notice that \(u_1\) and \(u_2\) are the estimated value for \(x_1\) and \(x_2\) based on the
+current parameter estimates \(\alpha_1^*\), \(\alpha_2^*\), and \(b^*\). \(K(\cdot, \cdot)\) is basically the
+kernel function, later on we will use \(K_{ij}\) to represent the \(ij\)&#39;th element in the kernel matrix. </p>
+
+<p>Since we can use \(\alpha_2\) to replace \(\alpha_1\), in objective function \(W\) can be rewrote as a function
+with respect to \(\alpha_2\) only, and any other terms that are not related to \(\alpha_2\) can be treated
+as constant:
+\[
+\begin{aligned}
+& W(\alpha) = \frac{1}{2} \sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j \langle x_i, x_j \rangle -
+\sum_{i=1}^m\alpha_i \\
+=& \frac{1}{2}K_{11}\alpha_1^2y_1^2 + \frac{1}{2}K_{22}\alpha_2^2y_2^2 + sK_{12}\alpha_1\alpha_2 + 
+\sum_{i=3}^m \alpha_1\alpha_i^*y_1y_iK_{1i} + \sum_{i=3}^m \alpha_2\alpha_i^*y_2y_iK_{2i} -\alpha_1
+-\alpha_2 + Constant \\
+=& \frac{1}{2}K_{11}\alpha_1^2 + \frac{1}{2}K_{22}\alpha_2^2 + sK_{12}\alpha_1\alpha_2 + \alpha_1y_1\
+\upsilon_1 + \alpha_2y_2\upsilon_2 - \alpha_1 - \alpha_2 + Constant \\
+=& \frac{1}{2}K_{11}(\xi - s\alpha_2)^2 + \frac{1}{2}K_{22}\alpha_2^2 + sK_{12}\alpha_2(\xi - s\alpha_2)+
+y_1(\xi - s\alpha_2)\upsilon_1 + y_2\alpha_2\upsilon_2 - \xi + s\alpha_2 - \alpha_2 + Constant \\
+\end{aligned}
+\]
+where
+\[
+\begin{aligned}
+\upsilon_1 = & \sum_{j=3}^m y_j\alpha_j^*K_{1j} = u_1 - b^* - y_1\alpha_1^*K_{11} - y_2\alpha_2^*K_{12}\\
+\upsilon_2 = & \sum_{j=3}^m y_j\alpha_j^*K_{2j} = u_2 - b^* - y_1\alpha_1^*K_{12} - y_2\alpha_2^*K_{22}\\
+Constant = & \sum_{i=3}^m \sum_{j=3}^m \alpha_i^* \alpha_j^* y_iy_jK_{ij} - \sum_{i=3}^m \alpha_i
+\end{aligned}
+\]
+Now it is very clear that our objective \(W(\alpha_2)\) is a quadratic function with respect to \(\alpha_2\).
+One more thing should be recalled that the \(\alpha_2\) can only be with in \((0, C)\) and \(\alpha_1\) is in 
+\((0, C)\), \(\alpha_1y_1 + \alpha_2y_2 = \xi\). And we know that the 
+optimization of the \(W(\alpha_2)\) will only be at either the endpoint or the \(\alpha_2\) such that 
+\(W'(\alpha_2) = 0\). So let us first have a look at what is the function value at the endpoints.</p>
+
+<p>There are two different situations for the endpoints of \(\alpha_2\):</p>
+
+<p><strong>When \(y_1\) and \(y_2\) are same</strong> 
+<img src="./figures/smo1.png" alt="y1 and y2 are different"></p>
+
+<p>As in the figure, possible value of \(\alpha_1\) and \(\alpha_2\) first should be located in the dash square.
+Plus \(\alpha_1\) and \(\alpha_2\) should be on the line \(\alpha_1 - \alpha_2 = \xi\). If the line is the 
+upper one, then we can see \(0 < \alpha_1 < C-\xi\) and \(\xi < \alpha_2 < C\). Or if is the lower line, 
+then we have \(\xi < \alpha_1 < C\) and \(0 < \alpha_2 < C-\xi\).</p>
+
+<p><strong>When \(y_1\) and \(y_2\) are different</strong>
+<img src="./figures/smo2.png" alt="y1 and y2 are same"></p>
+
+</div>
+
+
+<div class='tab-pane' id='smo-in-r'>
+<h3>SMO in R</h3>
+
+<pre><code class="r">ker &lt;- function(X) {
+  X %*% t(X)
+}
+</code></pre>
+
+<pre><code class="r">takeStep &lt;- function(i1, i2, X, Y, C, E2, alpha, b, kernel){
+  if (i1 == i2) {
+        return(list(flag = 0, alpha = alpha, b = b))
+    }
+    eps &lt;- 0.001
+    alph1 &lt;- alpha[i1] ##Lagrange multiplier for i1
+    alph2 &lt;- alpha[i2]
+    y1 &lt;- Y[i1]
+    y2 &lt;- Y[i2]
+    u1 &lt;- sum(kernel[i1, ]*Y*alpha) + b
+    E1 &lt;- u1 - y1 ##SVM output on point[i1] – y1 (check in error cache)
+    s &lt;- y1*y2
+    if (s == 1) { ##Compute L, H via equations (13) and (14)
+        L &lt;- max(0, alph1 + alph2 - C) 
+        H &lt;- min(C, alph2 + alph1)
+    }else {
+        L &lt;- max(0, alph2 - alph1)
+        H &lt;- min(C, C + alph2 - alph1)
+    } 
+    if (L == H) {
+        return(list(flag = 0, alpha = alpha, b = b))
+    }
+    k11 &lt;- kernel[i1, i1]
+    k12 &lt;- kernel[i1, i2]
+    k22 &lt;- kernel[i2, i2]
+    eta &lt;- k11 + k22 - 2*k12
+    if (eta &gt; 0) {
+        a2 &lt;- alph2 + y2*(E1 - E2)/eta
+        if (a2 &lt; L) {
+            a2 &lt;- L
+        }else if (a2 &gt; H) {
+            a2 &lt;- H
+        }
+    }else {
+        f1 &lt;- y1*(E1 - b) - alph1*k11 - s*alph2*k12
+        f2 &lt;- y2*(E2 - b) - s*alph1*k12 - alph2*k22
+        L1 &lt;- alph1 + s*(alph2 - L)
+        H1 &lt;- alph1 + s*(alph2 - H)
+        Lobj &lt;- L1*f1 + L*f2 + 1/2*L1^2*k11 + 1/2*L^2*k22 + s*L*L1*k12 ##objective function at a2=L
+        Hobj &lt;- H1*f1 + H*f2 + 1/2*H1^2*k11 + 1/2*H^2*k22 + s*H*H1*k12 ##objective function at a2=H
+        if (Lobj &lt; Hobj - eps) {
+            a2 &lt;- L
+        }else if(Lobj &gt; Hobj + eps) {
+            a2 &lt;- H
+        }else {
+            a2 &lt;- alph2
+        }
+    }
+    if (abs(a2 - alph2) &lt; eps*(a2 + alph2 + eps)) {
+        return(list(flag = 0, alpha = alpha, b = b))
+    }
+    a1 &lt;- alph1 + s*(alph2 - a2)
+    ##Update threshold to reflect change in Lagrange multipliers
+    b1 &lt;- b - (E1 + y1*(a1 - alph1)*k11 + y2*(a2 - alph2)*k12)  
+    b2 &lt;- b - (E2 + y1*(a1 - alph1)*k12 + y2*(a2 - alph2)*k22)  
+    if(a1 &lt; C &amp; a1 &gt; 0){
+        b &lt;- b1
+    }else if(a2 &lt; C &amp; a2 &gt; 0){
+        b &lt;- b2
+    }else {
+        b &lt;- (b1 + b2)/2
+    }
+    ##Update weight vector to reflect change in a1 &amp; a2, if SVM is linear
+    ##Update error cache using new Lagrange multipliers
+    alpha[i1] &lt;- a1 ##Store a1 in the alpha array
+    alpha[i2] &lt;- a2 ##Store a2 in the alpha array
+    return(list(flag = 1, alpha = alpha, b = b))
+}
+</code></pre>
+
+<pre><code class="r">examineExample &lt;- function(i2, X, Y, alpha, b, C, kernel){
+  y2 &lt;- Y[i2]
+    tol &lt;- 0.001
+    alph2 &lt;- alpha[i2]
+    u2 &lt;- sum(kernel[i2, ]*Y*alpha) + b
+    E2 &lt;- u2 - y2 ##SVM output on point[i2] – y2 (check in error cache)
+    r2 &lt;- E2*y2 ##r2 = y2*(u2 - y2) = y2*u2 - 1 = 0 is KKT condition, it will be used to check KTT violation
+    if ((r2 &lt; -tol &amp;&amp; alph2 &lt; C) | (r2 &gt; tol &amp;&amp; alph2 &gt; 0)) {
+        index &lt;- which(alpha != C &amp; alpha != 0)
+        if (sum(alpha != C &amp; alpha != 0) &gt; 1) { 
+            E1 &lt;- kernel[index, ] %*% (Y*alpha) + rep(b, length(index))
+            diff &lt;- which.max(abs(E1 - rep(E2, length(E1))))
+            i1 &lt;- index[diff] ##result of second choice heuristic (section 2.2)
+            result &lt;- takeStep(i1, i2, X, Y, C, E2, alpha, b, kernel)
+            if(result$flag) {
+                return(list(flag = 1, alpha = result$alpha, b = result$b))
+            }
+        }
+        ##loop over all non-zero and non-C alpha, starting at a random point
+        for(i in sample(index, length(index))) {
+            i1 &lt;- i
+            result &lt;- takeStep(i1, i2, X, Y, C, E2, alpha, b, kernel)
+            if(result$flag) {
+                return(list(flag = 1, alpha = result$alpha, b = result$b))
+            }
+        }
+        ##loop over all possible i1, starting at a random point
+        for(j in sample(1:length(Y), length(Y))) {
+            i1 &lt;- j
+            result &lt;- takeStep(i1, i2, X, Y, C, E2, alpha, b, kernel)
+            if(result$flag) {
+                return(list(flag = 1, alpha = result$alpha, b = result$b))
+            }
+        }
+    }
+    return(list(flag = 0, alpha = alpha, b = b))
+}
+</code></pre>
+
+<pre><code class="r">SMO &lt;- function(mean1, mean2, sd1, sd2, seed1, seed2) {
+  library(MASS)
+    set.seed(seed1)
+    x1 &lt;- mvrnorm(1000, mean1, sd1)
+    set.seed(seed2)
+    x2 &lt;- mvrnorm(1000, mean2, sd2)
+    X &lt;- rbind(x1,x2)
+    Y&lt;- rep(c(1, -1), each = 1000)
+    kernel &lt;- ker(X)
+
+    alpha &lt;- rep(1,length(Y))
+    b &lt;- 0
+    numChanged &lt;- 0
+    examineAll &lt;- 1
+  C &lt;- 1
+
+    while (numChanged &gt; 0 | examineAll) {
+        numChanged &lt;- 0
+        if (examineAll) {
+            for(I in 1:length(Y)) { ##loop I over all training examples
+                result &lt;- examineExample(I, X, Y, alpha, b, C, kernel)
+                numChanged &lt;- numChanged + result$flag
+                alpha &lt;- result$alpha
+                b &lt;- result$b
+            }
+        }else {
+            for(I in which(alpha != C &amp; alpha != 0)) { ##loop I over examples where alpha is not 0 &amp; not C
+                result &lt;- examineExample(I, X, Y, alpha, b, C, kernel)
+                numChanged &lt;- numChanged + result$flag
+                alpha &lt;- result$alpha
+                b &lt;- result$b
+            }
+        }
+        if (examineAll == 1) {
+            examineAll &lt;- 0
+        }else if (numChanged == 0) {
+            examineAll &lt;- 1
+        }
+    }
+    w &lt;- matrix(Y*alpha, nrow = 1) %*% X
+    list(w,b)
+}
+
+SMO(mean1, mean2, sd1, sd2, seed1, seed2)
+</code></pre>
 
 </div>
 
@@ -949,7 +1206,7 @@ respect to \(\alpha_1\)</p>
 <hr>
 
 <div class="footer">
-   <p>&copy; Xiaosu Tong, 2014</p>
+   <p>&copy; Xiaosu Tong, 2015</p>
 </div>
 </div> <!-- /container -->
 
