@@ -78,11 +78,6 @@
 <li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>Details</li>
       
       <li class='active'>
-         <a target='_self' class='nav-not-header' href='#more-about-svm'>More about SVM</a>
-      </li>
-
-
-      <li class='active'>
          <a target='_self' class='nav-not-header' href='#some-facts-of-geometry'>Some Facts of Geometry</a>
       </li>
 
@@ -121,11 +116,6 @@
 
       <li class='active'>
          <a target='_self' class='nav-not-header' href='#regularization'>Regularization</a>
-      </li>
-
-
-      <li class='active'>
-         <a target='_self' class='nav-not-header' href='#svm-and-logistic-regression'>SVM and Logistic Regression</a>
       </li>
 
 
@@ -191,27 +181,13 @@ the hyperplane so that the distance from it to the nearest data point on each si
 such a hyperplane exists, it is known as the maximum-margin hyperplane and the linear classifier it 
 defines is known as a maximum margin classifier; or equivalently, the perception of optimal stability.</p>
 
-<p>Any hyperplane can be written as the set of points \(\mathbf{x}\) satisfying</p>
-
-<p>\(\mathbf{w}\cdot\mathbf{x} - b = 0\)</p>
-
-</div>
-
-
-<div class='tab-pane' id='more-about-svm'>
-<h3>More about SVM</h3>
-
-<p>An SVM model is a representation of the examples as points in space, mapped so that the examples of
-the separate categories are divided by a clear gap that is as wide as possible. New examples are 
-then mapped into that same space and predicted to belong to a category based on which side of the 
-gap they fall on.</p>
-
-<p>It often happens that the sets to discriminate are not linearly separable in that space. For this 
-reason, it was proposed that the original finite-dimensional space be mapped into a much 
-higher-dimensional space, presumably making the separation easier in that space.</p>
-
-<p>The hyperplanes in the higher-dimensional space are defined as the set of points whose dot product
-with a vector in that space is constant.</p>
+<p>So we are trying to find a plane in space. Any hyperplane can be written as the set of points 
+\(\mathbf{x}\) satisfying:
+\[
+\omega^T\mathbf{x} - b = 0
+\]
+Then we want those points on different sides of the plane with different labels should have largest 
+minimum distance (also equal) to the plane. Let us start our journey with a review of some besics of geometry.</p>
 
 </div>
 
@@ -219,9 +195,25 @@ with a vector in that space is constant.</p>
 <div class='tab-pane' id='some-facts-of-geometry'>
 <h3>Some Facts of Geometry</h3>
 
+<h4>Inner product</h4>
+
+<p>FIrst is the inner product.
+Inner product is one of the most important concept in the Geometry. We know that we define the inner product as:
+\[
+x \cdot y = x^Ty = \sum_{i=1}^d x_iy_i
+\]
+This can be also expressed as:
+\[
+x \cdot y = \|x\|\|y\|\cos\theta = \text{Proj}_{y}(x) \|y\| = \text{Proj}_{x}(y) \|x\|
+\]
+Here \(\theta\) is the angel degree between two vectors, \(\text{Proj}_{y}(x)\) means the <strong>projection of x vector on y vector</strong>.
+Later on we will see
+that the distance from a point to a hyperplane can be illustrated as a inner product between the normal vector \(\omega\)
+and the point itself plus a constant scale \(b\). </p>
+
 <h4>Distance from point to a plane</h4>
 
-<p>First of all, we have to recall that one plane in Euclidean Space can be expressed as:
+<p>Then, we have to recall that one plane in Euclidean Space can be expressed as:
 \[
 \omega^Tx + b = 0, \;\;\;\; x \in R^d
 \]
@@ -237,19 +229,7 @@ the projection is just the inner product of two vectors.
 Dist = \|\text{Proj}_{\omega}(x_0 - x_1)\| = \frac{\|\omega^T(x_0 - x_1)\|}{\|\omega\|} = \frac{\|\omega^Tx_0 + b\|}{\|\omega\|}
 \]</p>
 
-<h4>Inner product</h4>
-
-<p>Inner product is one of the most important concept in the Geometry. We know that we define the inner product as:
-\[
-x \cdot y = x^Ty = \sum_{i=1}^d x_iy_i
-\]
-This can be also expressed as:
-\[
-x \cdot y = \text{Proj}_{y}(x) \|y\| = \text{Proj}_{x}(y) \|x\|
-\]
-Here \(\text{Proj}_{y}(x)\) means the <strong>projection of x vector on y vector</strong>. In the previous session, we have already seen
-that the distance from a point to a hyperplane can be illustrated as a inner product between the normal vector \(\omega\)
-and the point itself plus a constant scale \(b\). Here is one of <strong>important insight about SVM</strong> is that:</p>
+<p>Here is one of <strong>important insight about SVM</strong> is that:</p>
 
 <ul>
 <li>If a point is very close to a hyperplane, the projection of the point to the normal vector should be very small</li>
@@ -262,21 +242,132 @@ and the point itself plus a constant scale \(b\). Here is one of <strong>importa
 <div class='tab-pane' id='functional-and-geometric-margins'>
 <h3>Functional and Geometric Margins</h3>
 
+<h4>Logistic Regression</h4>
+
+<p>If we still remember the logistic regression, we know that we are fitting the probability of classifing to the &quot;1&quot; group as:
+\[
+\pi_i = h_\theta(x_i) = g(\theta^Tx_i) = \frac{1}{1 + e^{-\theta^Tx_i}}
+\]
+Here the \(g\) is the logistic function. It is a function valued from 0 to 1. When \(\pi_i > 0.5\) we classify it as group &quot;1&quot;,
+and when \(\pi_i < 0.5\) we classify it as group &quot;0&quot;. The cutoff point \(\pi_i = 0.5\) is for \(\theta^Tx_i = 0\). So what decides
+the classification result is the value of \(\theta^Tx_i\), which we want \(\theta^Tx_i \gg 0\) for \(y=1\), and \(\theta^Tx_i \ll 0\)
+for \(y=0\).</p>
+
+<p>Let us look at one simple example as following:</p>
+
+<p><img src="./figures/logistic.png" alt="logistic regression"></p>
+
+<p>The line in the graph is the \(\theta^Tx = 0\) which is also the learning result, \(\theta\) is the normal vector. What logistic
+regression wants is all data points falling far away from the center line. But this is hard, because if we want some points
+to be far away from the line, then we have to sacrify other points to be close to the line just like a seesaw. And this is 
+where SVM is different or better than logistic regression since SVM is only care about some of the data point which we call
+them support vectors. We will come to this later with more details.</p>
+
+<h4>Functional Margins</h4>
+
+<p>First of all, SVM classifier can be introduced as:
+\[
+h_{\omega,b}(x) = g(\omega^Tx + b)
+\]
+This is very similar to the logistic regression which \(g\) is the logistic function. In SVM, we will define a different \(g\)
+function which is just: \(g(z) = 1\) if \(z \ge 0\) and \(g(z) = -1\) if \(z < 0\).</p>
+
+<p>\[ g(z) = \left\{
+  \begin{array}{l l}
+     1 & \quad \text{if} z \geq 0 \\
+    -1 & \quad \text{if} z < 0
+  \end{array} \right.\]</p>
+
+<p>Given a trainning example \((x_i, y_i)\), we define the functional margin of \((\omega, b)\) with respect to the training example:
+\[
+\hat \gamma_i = y_i(\omega^T x_i + b)
+\]
+This is very similar to the logistic regression setup, which we just replace the \(\theta\) with \(\omega\) and change \(\theta_0\) 
+to be \(b\). if \(y_i = 1\), then we need \(\omega^Tx + b\) to be a large positive number for \(y_i = 1\) and to be a large negative 
+number for \(y_i = -1\). So overall, if \(y_i(\omega^Tx_i + b) > 0\), then our prediction on this example is correct. Hence, a
+large functional margin represents a confident and correct prediction.</p>
+
+<p>However, there is one property of the functional margin that makes it not a very good measure of confidence. If we replace 
+\(\omega\) with \(2\omega\) and \(b\) with \(2b\), then \(g(\omega^Tx+b) = g(2\omega^Tx+2b)\) will not change our classification
+result at all. So the classification result only depends on the sign, but not on the magnitude of \(\omega^Tx + b\). Intuitively
+it might therefore make sense to impose some sort of normalization condition to the \(\omega\) and \(b\).</p>
+
+<p>So given a trainning set, we define the functional margin of \((\omega, b)\) with respect to training set to be the smallest of
+the functional margins of the individual training examples:
+\[
+\hat \gamma = \min \hat \gamma_i
+\]</p>
+
+<h4>Geometric Margins</h4>
+
 <p>The geometric margin is just a scaled version of the functional margin.</p>
 
-<p>You can think the functional margin, just as a testing function that will tell you whether a particular 
-point is properly classified or not. And the geometric margin is functional margin scaled by \(\|\omega\|\)</p>
+<p><img src="./figures/gmargin.png" alt="geometric margin"></p>
 
-<p>the result would be positive for properly classified points and negative otherwise. If you scale 
-that by \(\|\omega\|\) then you will have the geometric margin. </p>
-
-<p>Why does the geometric margin exists?</p>
-
-<p>Well to maximize the margin you need more that just the sign, you need to have a notion of magnitude,
+<p>As shown in the graph, suppose we got the classifier hyperplane. Distance from point A to the hyperplane is \(\gamma_i\), and
+assume point B is the projection of A on the plane, and A is training example \((x_i,y_i)\).
+Recall from the distance to a plane session, we have:
+\[
+\gamma_i = \frac{\|\omega^Tx_i + b\|}{\|\omega\|}
+\]
+which can be further rewrote as:
+\[
+\gamma_i = y_i\left( (\frac{\omega}{\|\omega\|})^Tx_i + \frac{b}{\|\omega\|}\right)
+\]
+Now it is not hard to notice geometric margins is nothing but a rescaled functional margins with \(\frac{1}{\\\omega\|}\).
+Still we define the geometric margin to be:
+\[
+\gamma = \min \gamma_i
+\]
+You can think the functional margin, just as a testing function that will tell you whether a particular 
+point is properly classified or not. And the geometric margin is functional margin scaled by \(\|\omega\|\) which is exactly the
+normalization condition we mentioned above. But why does the geometric margin exists?
+Well to maximize the margin you need more that just the sign, you need to have a notion of magnitude,
 the functional margin would give you a number but without a reference you can&#39;t tell if the point is 
 actually far away or close to the decision plane. The geometric margin is telling you not only if 
 the point is properly classified or not, but the magnitude of that distance in term of units of 
 \(\|\omega\|\) </p>
+
+<p>Also, the geometric margin is invariant to rescaling of parameters, like functional margin. When trying to fit \(\omega\) and \(b\)
+to training data, we can impose an arbitrary scaling constraint on \(\omega\) without changing anything important; 
+for instance, we can demand that \(\|w\| = 1\) and this can be satisfied simply by rescaling \(\omega\) and \(b\). This arbitrary
+constraint however does make our solution unique.</p>
+
+<h4>Optimal Margin Classifier</h4>
+
+<p>The goal in SVM learning is try to find a hyperplane, which means find the \(\omega\) and \(b\), that can make the margin from the
+closest point to the plane to be as small as possible. So we do not care about all the points excepts those closest points (
+sometimes, closest point is not unique). Then the problem can be translated as:
+\[
+\begin{aligned}
+\max_{\gamma, \omega, b} & \gamma \\
+s.t. & y_i(\omega^Tx_i + b) \ge \gamma, \;\;\; i = 1, \cdots, m \\
+& \|\omega\| = 1
+\end{aligned}
+\]
+Here the constraint \(\|\omega\| = 1\) is just to make \(y_i(\omega^Tx_i + b)\) to be geometric margin as well. However since
+\(\|\omega\| = 1\) is not convex, we just rewrite the problem to be:
+\[
+\begin{aligned}
+\max_{\gamma, \omega, b} & \frac{\hat \gamma}{\|\omega\|} \\
+s.t. & y_i(\omega^Tx_i + b) \ge \hat \gamma, \;\;\; i = 1, \cdots, m \\
+\end{aligned}
+\]
+Here we are still trying to maximize the geometric margin because \(\gamma = \frac{\hat \gamma}{\|\omega\|}\). We get rid of the
+\(\|\omega\| = 1\) now, but our objective is not convex anymore. We still have to rewrite it again. Recall that we said changing
+\(\omega\) and \(b\) at the same time will not change the functional margin or geometric margin. So we can just define 
+\(\hat \gamma = 1\) for convenient to get unique solution.
+\[
+\begin{aligned}
+\max_{\gamma, \omega, b} & \frac{1}{\|\omega\|} \\
+s.t. & y_i(\omega^Tx_i + b) \ge 1, \;\;\; i = 1, \cdots, m 
+\end{aligned}
+\]</p>
+
+<p>Moreover, the objective function or just the likelihood function for logistic regression is:
+\[
+L(\theta) = \sum_{i=1}^n( y_i\log(g(\theta^Tx_i)) + (1 - y_i)\log(1 - g(\theta^Tx_i))
+\]</p>
 
 </div>
 
@@ -819,14 +910,6 @@ Then, we can have </p>
 <li>If \(0 < \alpha_i < C\), then \(y_i(x^Tx + b) - 1 + \xi_i = 0\), and \(r_i \ne 0 \Rightarrow \xi_i = 0\).
 So \(y_i(x^Tx + b) = 1\)</li>
 </ul>
-
-</div>
-
-
-<div class='tab-pane' id='svm-and-logistic-regression'>
-<h3>SVM and Logistic Regression</h3>
-
-<p>There are a lot of similarity between the SVM and the logistic regression. In the logistic regression, we have our </p>
 
 </div>
 
