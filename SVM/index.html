@@ -366,7 +366,7 @@ s.t. & y_i(\omega^Tx_i + b) \ge 1, \;\;\; i = 1, \cdots, m
 
 <p>Moreover, the objective function or just the likelihood function for logistic regression is:
 \[
-L(\theta) = \sum_{i=1}^n( y_i\log(g(\theta^Tx_i)) + (1 - y_i)\log(1 - g(\theta^Tx_i))
+L(\theta) = \sum_{i=1}^m( y_i\log(g(\theta^Tx_i)) + (1 - y_i)\log(1 - g(\theta^Tx_i))
 \]</p>
 
 </div>
@@ -1035,7 +1035,7 @@ with respect to \(\alpha_i\) and \(\alpha_j\), while holding all the other \(\al
 \]
 Then we will have
 \[
-\alpha_1y_1 + \alpha_2y_2 = \xi
+\alpha_1y_1 + \alpha_2y_2 = - \sum_{i=3}^m y_i\alpha_i
 \]
 Here \(\xi\) is a constant. Suppose \(\alpha_1\) and \(\alpha_2\) are the updated value in \(k\)&#39;th step, and 
 \(\alpha_1^*\) and \(\alpha_2^*\) are the value in \((k-1)\)&#39;th step, and we assume that all \(\alpha_i^*\) 
@@ -1043,13 +1043,13 @@ satisfy the two constraints in the original problem. So we are trying to update 
 \(\alpha_1^*\) and \(\alpha_2^*\) to \(\alpha_1\) and \(\alpha_2\). Still we have following linear constraint for
 old \(\alpha\)&#39;s:
 \[
-\alpha_1y_1 + \alpha_2y_2 = \alpha_1^*y_1 + \alpha_2^*y_2 = \xi
+\alpha_1y_1 + \alpha_2y_2 = \alpha_1^*y_1 + \alpha_2^*y_2 
 \]
 So, our SMO procedure basically is trying to calculate \(\alpha_1\) and \(\alpha_2\) given \(\alpha_1^*\) and
 \(\alpha_2^*\) in each step. Let \(s = y_1y_2\), and \(y_1y_1 = y_2y_2 =1\). Then multiply \(y_1\) on each side
 of above constraint we have:
 \[
-\alpha_1 + s\alpha_2 = \alpha_1^* + s\alpha_2^* = \xi = -y_1 \sum_{i=3}^m y_i\alpha_i^*
+\alpha_1 + s\alpha_2 = \alpha_1^* + s\alpha_2^* = -y_1 \sum_{i=3}^m y_i\alpha_i^* = \xi
 \]
 We also have:
 \[
@@ -1090,22 +1090,133 @@ Constant = & \sum_{i=3}^m \sum_{j=3}^m \alpha_i^* \alpha_j^* y_iy_jK_{ij} - \sum
 \]
 Now it is very clear that our objective \(W(\alpha_2)\) is a quadratic function with respect to \(\alpha_2\).
 One more thing should be recalled that the \(\alpha_2\) can only be with in \((0, C)\) and \(\alpha_1\) is in 
-\((0, C)\), \(\alpha_1y_1 + \alpha_2y_2 = \xi\). And we know that the 
+\((0, C)\), \(\alpha_1 + s\alpha_2 = \xi\). And we know that the 
 optimization of the \(W(\alpha_2)\) will only be at either the endpoint or the \(\alpha_2\) such that 
 \(W'(\alpha_2) = 0\). So let us first have a look at what is the function value at the endpoints.</p>
 
 <p>There are two different situations for the endpoints of \(\alpha_2\):</p>
 
-<p><strong>When \(y_1\) and \(y_2\) are same</strong> 
+<p><strong>When \(y_1\) and \(y_2\) are different</strong> 
 <img src="./figures/smo1.png" alt="y1 and y2 are different"></p>
 
 <p>As in the figure, possible value of \(\alpha_1\) and \(\alpha_2\) first should be located in the dash square.
 Plus \(\alpha_1\) and \(\alpha_2\) should be on the line \(\alpha_1 - \alpha_2 = \xi\). If the line is the 
 upper one, then we can see \(0 < \alpha_1 < C-\xi\) and \(\xi < \alpha_2 < C\). Or if is the lower line, 
-then we have \(\xi < \alpha_1 < C\) and \(0 < \alpha_2 < C-\xi\).</p>
+then we have \(\xi < \alpha_1 < C\) and \(0 < \alpha_2 < C-\xi\). And we do not care about \(\alpha_1\), so boundary 
+for \(\alpha_2\) is (in order to match the graph, we changed the sign in front of \(\alpha_1\) and \(\alpha_2\) in 
+\(\alpha_1 - \alpha_2 = \xi\)):
+\[
+L = \max(0, \alpha_2^* - \alpha_1^*) \;\;\;\; U = \min(C, C + \alpha_2^* - \alpha_1^*)
+\]</p>
 
-<p><strong>When \(y_1\) and \(y_2\) are different</strong>
+<p><strong>When \(y_1\) and \(y_2\) are same</strong>
 <img src="./figures/smo2.png" alt="y1 and y2 are same"></p>
+
+<p>Same as before, possible value of \(\alpha_1\) and \(\alpha_2\) first should be located in the dash square.
+Plus \(\alpha_1\) and \(\alpha_2\) should be on the line \(\alpha_1 + \alpha_2 = \xi\). If the line is the 
+upper one, then we can see \(\xi - C < \alpha_1 < C\) and \(\xi - C< \alpha_2 < C\). Or if is the lower line, 
+then we have \(0 < \alpha_1 < \xi\) and \(0 < \alpha_2 < \xi\). And we do not care about \(\alpha_1\), so boundary 
+for \(\alpha_2\) is (in order to match the graph, we changed the sign in front of \(\alpha_1\) and \(\alpha_2\) in 
+\(\alpha_1 - \alpha_2 = \xi\)):
+\[
+L = \max(0, \alpha_2^* + \alpha_1^* - C) \;\;\;\; U = \min(C, \alpha_2^* + \alpha_1^*)
+\]</p>
+
+<p>Now is the time for first derivative of \(W\) with respect to \(\alpha_2\).
+\[
+\begin{aligned}
+& \frac{\mathrm{d}W}{\mathrm{d}\alpha_2} = -sK_{11}(\xi -s\alpha_2) + K_{22}\alpha_2 -2K_{12}\alpha_2 + sK_{12}\xi +s -1 +
+y_2\upsilon_2 - sy_1\upsilon_2 = 0 \\
+\Leftrightarrow & \alpha_2(K_{11} + K_{22} - 2K_{12}) = s(K_{11} - K_{12})\xi + y_2(\upsilon_1 - \upsilon_2) + 1 - s
+\end{aligned}
+\]
+where
+\[
+\begin{aligned}
+RHS & = s(K_{11} - K_{12})(\alpha_1^* + s\alpha_2^*) + y_2(u_1 - u_2 - y_1\alpha_1^*K_{11} - y_2\alpha_2^*K_{12} + 
+y_1\alpha_1^*K_{12} + y_2\alpha_2^*K_{22}) + 1 - s\\
+& = K_{11}\alpha_2^* - K_{12}\alpha_2^* + y_2(u_1 - u_2) - K_{12}\alpha_2^* + K_{22}\alpha_2^* + y_2(y_2 - y_1) \\
+& = \alpha_2^*(K_{11} + K_{22} - 2K_{12}) + y_2(u_1 - u_2 + y_2 - y_1)
+\end{aligned}
+\]
+We introduce a new notation here:
+\[
+\eta = K_{11} + K_{22} - 2K_{12}
+\]
+So the update \(\alpha_2\) for the case that optimization is at the derivative zero point can be written down as:
+\[
+\alpha_2 = \alpha_2^* + \frac{y_2(E_1 - E_2}{\eta}
+\]
+Finally, combining the situation at the endpoint of \(\alpha_2\), we have our final version of updating:
+\[ \alpha_2^{new} = \left\{
+  \begin{array}{l l}
+    U  & \quad \text{if} \alpha_2 \geq U \\
+    \alpha_2  & \quad \text{if} L < \alpha_2 < U \\
+    L  & \quad \text{if} \alpha_2 \leq L
+  \end{array} \right.\]
+and for \(\alpha_1\):
+\[
+\alpha_1^{new} = \alpha_1 + s(\alpha_2 - \alpha_2^{new})
+\]
+Let us have a deeper look at this \(\eta\) variable. For most of situation, \(\eta\) should be non-negative, but sometimes it does
+not. If the kernel function does not satisfy the Mercer Theorem, then the objective function may not be non-negative, then 
+\(\eta\) maybe negative. Even the kernel function is valid, if there are two same training sample in X, then \(\eta\) could be 0.
+Good news is that SMO algorithm is still valid for those situation. It turns out that \(\eta\) is nothing but the second derivative
+of \(W(\alpha_2)\) with respect to \(\alpha_2\). If \(\eta < 0\), there is no minimum value for \(W\), so the minimum will be at 
+endpoint. If \(\eta = 0\), then \(W\) is a monotonous function, minimum will also be at endpoint OF \(\alpha_2\). We will find the 
+corresponding \(\alpha_1\) for endpoint of \(\alpha_2\), and then plug them into \(W\).
+\[
+\begin{aligned}
+L_1 = \alpha_1^* + s(\alpha_2^* - L) \\
+U_1 = \alpha_1^* + s(\alpha_2^* - U) \\
+\end{aligned}
+\]
+\(L_1\) and \(U_1\) are the corresponding \(\alpha_1\). 
+\[
+\begin{aligned}
+& W(L, L_1) = [\frac{1}{2}K_{11}L_1^2 + \frac{1}{2}K_{22}L^2 + sK_{12}LL_1] + [L_1(y_1\upsilon_1 - 1)] + 
+[L(y_2\upsilon_2 - 1)] + Constant \\
+& \text{2ed square brackets} = [L_1(y_1(u_1 - b^*-y_1\alpha_1^*K_{11} - y_2\alpha_2^*K_{12}) - 1)] \\
+& = [L_1(y_1(E_1+y_1-b^*-y_1\alpha_1^*K_{11} - y_2\alpha_2^*K_{12}) - 1)] \\
+& = L_1(y_1(E_1 - b^*) -\alpha_1^*K_{11} - s\alpha_2^*K_{12}) \\
+& \text{3rd square brackets} = [L(y_2(u_2 - b^* - y_1\alpha_1^*K_{12} - y_2\alpha_2^*K_{22}) - 1)] \\
+& = L(y_2(E_2 - b^*) - y_1\alpha_1^*K_{12} - y_2\alpha_2^*K_{22})
+\end{aligned}
+\]
+And same for the upper limit:
+\[
+\begin{aligned}
+& W(U, U_1) = [\frac{1}{2}K_{11}U_1^2 + \frac{1}{2}K_{22}U^2 + sK_{12}UU_1] + [U_1(y_1\upsilon_1 - 1)] + 
+[U(y_2\upsilon_2 - 1)] + Constant \\
+& \text{2ed square brackets} = [U_1(y_1(u_1 - b^*-y_1\alpha_1^*K_{11} - y_2\alpha_2^*K_{12}) - 1)] \\
+& = [U_1(y_1(E_1+y_1-b^*-y_1\alpha_1^*K_{11} - y_2\alpha_2^*K_{12}) - 1)] \\
+& = U_1(y_1(E_1 - b^*) -\alpha_1^*K_{11} - s\alpha_2^*K_{12}) \\
+& \text{3rd square brackets} = [U(y_2(u_2 - b^* - y_1\alpha_1^*K_{12} - y_2\alpha_2^*K_{22}) - 1)] \\
+& = U(y_2(E_2 - b^*) - y_1\alpha_1^*K_{12} - y_2\alpha_2^*K_{22})
+\end{aligned}
+\]</p>
+
+<p>OK, so far we have covered how to minimize the objective function with respect to two \(\alpha\)&#39;s.
+THe problem before this minimization is how to choose these two \(\alpha\) in order to speed up the procedure.
+So we first find a \(\alpha_2\) which will be updated, then choose a \(\alpha_1\) which can maximize the 
+\(\|E_1 - E_2\|\). Here is the two steps.</p>
+
+<ul>
+<li>outter loop: this loop will loop over samples whose \(\alpha\) is \(0 < \alpha_i < C\) or all the samples.
+We first loop over the samples whose \(\alpha\) is \(0 < \alpha_i < C\) because those samples are support
+vectors, and support vectors&#39; \(\alpha_i\) are more likely to be changed (most of samples are obviously
+not support vectors, their \(\alpha_i\) will not be changed once it are 0). We loop over the samples
+whose \(\alpha\) is \(0 < \alpha_i < C\) and choose those are against KKT conditions to update until all those
+\(0 < \alpha_i < C\) samples are valid for KKT. If all \(0 < \alpha_i < C\) samples were not changed in one
+outter loop, we will then have to loop over all samples. Then if there is any sample updated in this all
+sample looping, we have to loop over those \(0 < \alpha_i < C\) samples. So outter loop is switching between
+looping over \(0 < \alpha_i < C\) samples and looping over all samples until all samples are valid for KKT.</li>
+<li>inner loop: we already found the \(\alpha_2\) which did not satisfied KKT condtions, we will try to find
+a \(\alpha_1\) that maximizes the \(\|E_1 - E_2\|\). But sometims, the \(\alpha_1\) and \(\alpha_2\) pair we found
+cannot be updated(for example, \(\eta = 0\)). So we will try to find new \(\alpha_1\) by looping over all
+\(0 < \alpha_i < C\) samples. If still cannot find, then we loop over all samples. If still cannot find,
+then we give up the \(\alpha_2\) we found in outter loop.</li>
+</ul>
 
 </div>
 
