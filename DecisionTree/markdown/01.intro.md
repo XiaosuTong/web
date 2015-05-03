@@ -27,7 +27,7 @@ continuous values (typically real numbers) are called regression trees.
 A decision tree is a simple representation for classifying examples. Decision tree learning is one 
 of the most successful techniques for supervised classification learning. Assume that all of the 
 features have finite discrete domains, and there is a single target feature called the 
-classification (Y). Each element of the domain of the classification is called a class. A decision tree 
+classification ($Y$). Each element of the domain of the classification is called a class. A decision tree 
 or a classification tree is a tree in which each internal (non-leaf) node is labeled with an input 
 feature ($X_i$). 
 
@@ -291,8 +291,213 @@ encoding the training examples and the decision tree.
 
 In summary, post-pruning is bettern than pre-pruning.
 
-### Random Forests ###
+## Random Forests ##
 
-#### Example bagging ####
+### Blending ###
 
-#### Random features ####
+Suppose we have $h_1, \cdots, h_T$ prediction for the same event which using different hypothesis or
+different model. Be more specifically $h_i$ can be the classification result ($-1$ or $1$) from different
+models.
+
+#### Type ####
+
+- Select the most trust-worthy hypothesis, which is the most basic method: model selection
+based on evaluation dataset, cross validation.
+  
+- mix the predictions from all the hypothesis uniformly
+
+- mix the predictions from all the hypothesis non-uniformly
+
+- combine the predictions conditionally
+
+#### Selection ####
+
+$$ H(x) = h_{t_*}(x) \;\;\; s.t. \;\;\; t_* = \arg\min_{t} MSE(eval) $$
+
+#### Uniform blending ####
+
+For known $h_t$ each with weight 1.
+$$
+H(x) = \sum_{t=1}^T 1 \cdot h_t(x)
+$$
+For regression, uniform blending can be:
+$$
+H(x) = \frac{1}{T} \sum_{t=1}^T h_t(x)
+$$
+very different $h_t$, average could be more accurate than individual. Diversity is better.
+
+**Theory**
+Suppose the true value of prediction for given $x$ is $f(x)$, we can examine the mean square error as follow:
+$$
+\begin{aligned}
+\frac{1}{T} \sum_{t=1}^T( h_t(x) - f(x))^2 & = \frac{1}{T} \sum_{t=1}^T (h_t^2(x) - 2h_t(x)f(x) + f^2(x)) \\
+& = \frac{1}{T} \sum_{t=1}^T h_t^2(x) - 2f(x)H(x) + f^2(x) \\
+& = \frac{1}{T} \sum_{t=1}^T h_t^2(x) - H^2(x) + ( H(x) - f(x))^2 \\
+& = \frac{1}{T} \sum_{t=1}^T h_t^2(x) - 2H^2(x) + H^2(x) + (H(x) - f(x))^2 \\
+& = \frac{1}{T} \sum_{t=1}^T ( h_t^2(x) - 2H(x)h_t(x) + H^2(x)) + (H(x) - f(x))^2 \\
+& = \frac{1}{T} \sum_{t=1}^T (h_t(x) - H(x))^2 + (H(x) - f(x))^2
+\end{aligned}
+$$
+For any $x$ we can still get the same formula as above only replacing to be the expectation:
+$$
+\frac{1}{T} \sum_{t=1}^T E_x(h_t - f)^2 = \frac{1}{T} \sum_{t=1}^T E_x(h_t - G)^2 + E_x(H - f)^2 \\
+\frac{1}{T} \sum_{t=1}^T E_x(h_t - f)^2 \ge E_x(H - f)^2
+$$
+This is nothing but a bias-variance decomposition of mean square error. By doing blending, we are actually
+trying to reduce the variance 
+
+#### Linear blending ####
+
+The difference between linear blending and uniform blending is that we assign different weights to the
+known $h_t(x)$.
+$$
+H(x) = \sum_{t=1}^T \alpha_t \cdot h_t(x)
+$$
+There is a restriction which is $\alpha_t \ge 0$. But this restriction can be removed if we are facing
+a classification. If $\alpha_t < 0$ then we just set $\alpha_th_t(x) = |\alpha_t|\cdot(-h_t(x))$. So we
+just flip the classification result from $h_t(x)$.
+
+Without the positive restriction of $\alpha_t$, the original problem of linear blending can be solved as
+$$
+\alpha = \arg\min \frac{1}{N} \sum_{n=1}^N \left( y_n - \sum_{t=1}^T \alpha_th_t(x_n) \right)^2
+$$  
+This is just a linear regression of $y_n$ to the $x_n$ after transformation. If we assume the $x_n$ is
+in dimension d, then we just transformed $x_n$ into $h(x_n)$ within dimension T.
+
+### Bagging ###
+
+Bagging sometimes also is called as Bootstrap Aggregation. In the blending session, we assumed we have
+already knew all the $h_t$, then we aggregated all those known $h_t$ together.
+
+The diversity of $h_t$ is important, it will give us better result with larger diversity.
+- diversity can be different models
+- diversity can be different tuning parameters
+- diversity can be the different starting point in the algorithm
+- diversity can be the data randomness
+
+Data randomness can be achieved by bootstrapping: $D_t$ re-sample N examples from the original dataset $D$
+uniformly with replacement.
+
+Then we apply the model $h$ to the $D_t$ to get the estimate $h_t$, and blending can be used to average
+the $h_t$.
+
+### Boosting ###
+
+Boosting refers to a general and provably effefctive method of producing a very accurate prediction
+rule by combining rough and moderately inaccurate hypothesis.
+
+#### Background ####
+
+Rough and moderately inaccurate hypothesis is a very vague defination with respect to the machine 
+learning hypothesis. If we want to define it with more accuracy, we need some basic idea about PAC 
+learning model. Boosting actually has its roots in a theoretical framework for studying machine 
+learning called the “PAC” learning model, due to Valiant. Kearns and Valiant were the first to 
+pose the question of whether a “weak” learning algorithm which performs just slightly better than 
+random guessing in the PAC model can be “boosted” into an arbitrarily accurate “strong” learning 
+algorithm.
+
+Schapire came up with the first provable polynomial-time boosting algorithm in 1989. Paper showed 
+that any weak learning algorithm can be efficiently transformed or boosted into a strong learning 
+algorithm. A year later, Freund presented the "boost-by-majority" algorithm that is considerably more
+efficient than Schapire's developed a much more efficient boosting algorithm which, although optimal 
+in a certain sense, nevertheless suffered from certain practical drawbacks.
+
+Both algorithms work by calling a given weak learning algorithm **WeakLearn** multiple times, each time 
+presenting it with a different distribution over the domain $X$, and finally combining all of the 
+generated hypotheses into a single hypothesis. The intuitive idea is to alter the distribution over 
+the domain $X$ in a way that increases the probability of the **harder** parts of the space, thus 
+forcing the weak learner to generate new hypotheses that make less mistakes on these parts.
+
+However, an important, practical deficiency of the boost-by-majority algorithm is the requirement 
+that the bias of the weak learning algorithm **WeakLearn** be known ahead of time. Not only is this 
+worst-case bias usually unknown in practice, but the bias that can be achieved by **WeakLearn**
+will typically vary considerably from one distribution to the next. Unfortunately, the boost-by-majority 
+algorithm cannot take advantage of hypotheses computed by **WeakLearn** with error significantly 
+smaller than the presumed worst-case bias of $\frac{1}{2} - \gamma$.
+
+#### AdaBoost ####
+
+**AdaBoost** is a new boosting algorithm developed by Freund after the **boost-by-majority** algorithm. It
+is a boosting by sampling method.
+
+We assume that a sequence of $N$ traning examples $(x_1, y_1), \cdots, (x_N, y_N)$ is drawn randomly from
+$X \times Y$ according to fixed but unknown distribution $\mathscr{P}$. We use boosting to find a hypothesis
+$h_f$ which is consistent with most of the sample (i.e. $h_f(x_i) = y_i$ for most $1 \le i \le N$). In
+general, a hypothesis which is accurate on the training set might not be accurate on examples outside the
+training set; this problem is sometimes referred to as overfitting. Often, overfitting can be avoided by
+restricting the hypothesis to be simple so that generalization error is closed to the empirical error on 
+the training dataset. Or we can view this issue from the prespective of bagging. In the bagging method,
+we are shown that the final aggregation is better if the diversity of each $h_t$ is large. Here the we can
+increase the diversity of each **WeakLearn** by restricting them to be simple.
+
+AdaBoost calls a given weak or base learning algorithm repeatedly in a series of
+rounds $t=1,\cdots, T$. One of the main ideas of the algorithm is to maintain a distribution or set of
+weights over the training dataset. The weight of this distribution on training example $i$ on round $t$ is
+denoted $D_t(i)$. Initially, all weights are set equally, but on each round, the weights of incorrectly
+classified examples are increased so that the weak learner is forced to focus on the hard examples
+in the training set.
+
+First let us assume all $h_t$ are continuous function mapping $x_i$ to $[0,1]$. This assumption is valid if
+we are considering logisitic regression as the weak hypotheses. $h_t$ now is nothing but the fitted 
+probability of success $\hat \pi_i$.
+$$
+\begin{aligned}
+\textbf{Input:} & \;\; \text{sequence of N labeled examples} \;\; (x_1, y_1), \cdots, (x_N, y_N) \\
+& \;\; \text{distribution D over the N examples} \\
+& \;\; \text{week learning algorithm WeakLearn} \\
+& \;\; \text{integer T specifying number of iterations} \\
+\textbf{Initialize:} & \;\; \text{the weight vector:} D_1(i) = \frac{1}{N} \;\; \text{for} \;\; i = 1, \cdots, N \\
+\textbf{Do for} & t = 1, \cdots, T: \\
+& \;\; 1. \; \text{Set} \;\;\;\;\;\;\;\;\; \mathbf{p}^t = \frac{\mathbf{D}_t}{\sum_{i=1}^N D_t(i)} \\
+& \;\; 2. \; \text{Call WeakLearn, provideing it with the distribution} \mathbf{p}^t; \text{get back a}  \\
+& \;\; \text{hypothesis} \;\; h_t: X \rightarrow [0,1] \\
+& \;\; 3. \; \text{Calculate the error of} \;\; h_t:\epsilon_t = \sum_{i=1}^N p_i^t|h_t(x_i) - y_i| \\
+& \;\; 4. \; \text{Set} \;\; \alpha_t = \frac{1-\epsilon_t}{\epsilon_t} \\
+& \;\; 5. \; \text{Set the new weights vector to be} D_{t+1}(i) = D_t(i)\alpha_t^{|h_t(x)-y_i|-1} \\
+\textbf{Output:} & \text{the hypothesis}
+\end{aligned}
+$$
+\[ h_f(x) = \left\{
+  \begin{array}{l l}
+    1 & \quad \text{if $\sum_{i=1}^T\log\alpha_th_t(x) \ge \frac{1}{2}\sum_{t=1}^T\log\alpha_t$} \\
+    0 & \quad \text{otherwise}
+  \end{array} \right.\]
+
+Secondly if we assume all $h_t$ are binary function mapping $x_i$ to ${-1, +1}$. This assumption is valid if
+we are considering decision stump as the weak hypotheses. $h_t$ now is nothing but the fitted binary class
+$-1$ or $+1$.
+$$
+\begin{aligned}
+\textbf{Input:} & \;\; \text{sequence of N labeled examples} \;\; (x_1, y_1), \cdots, (x_N, y_N) \\
+& \;\; \text{distribution D over the N examples} \\
+& \;\; \text{week learning algorithm WeakLearn} \\
+& \;\; \text{integer T specifying number of iterations} \\
+\textbf{Initialize:} & \;\; \text{the weight vector:} D_1(i) = \frac{1}{N} \;\; \text{for} \;\; i = 1, \cdots, N \\
+\textbf{Do for} & t = 1, \cdots, T: \\
+& \;\; 1. \; \text{Set} \;\;\;\;\;\;\;\;\; \mathbf{p}^t = \frac{\mathbf{D}_t}{\sum_{i=1}^N D_t(i)} \\
+& \;\; 2. \; \text{Call WeakLearn, provideing it with the distribution} \mathbf{p}^t; \text{get back a}  \\
+& \;\; \text{hypothesis} \;\; h_t: X \rightarrow \{-1, +1\} \\
+& \;\; 3. \; \text{Calculate the error of} \;\; h_t:\epsilon_t = \sum_{i:h_t(x_i) \ne y_i} p_i^t \\
+& \;\; 4. \; \text{Set} \;\; \alpha_t = \frac{1-\epsilon_t}{\epsilon_t} \\
+& \;\; 5. \; \text{Set the new weights vector to be} 
+\end{aligned}
+$$
+\[ D_{t+1}(i)  = \left\{
+  \begin{array}{l l}
+    D_t(i)\alpha_t^{-\frac{1}{2}} & \quad \text{if $h_t(x_i) = y_i$} \\
+    D_t(i)\alpha_t^{\frac{1}{2}} & \quad \text{if $h_t(x_i) \ne y_i$} 
+  \end{array} \right.\]
+$$
+\begin{aligned}
+&\textbf{Output:} \;\; \text{the hypothesis} \;\;\; h_f(x) = \text{sign}\left( \sum_{i=1}^T \log\alpha_t h_t(x)\right)
+\end{aligned}
+$$
+
+#### Note ####
+
+- $\epsilon_t$ is the expectation of error with respect to the distribution of $D_t$
+- the intuition of $\alpha_t$ is trying to make $h_t$ more different than $h_{t+1}$. We want the new weight $D_{t+1}$ 
+to make error of $h_t$ to be random-like.
+### Example bagging ###
+
+### Random features ###
