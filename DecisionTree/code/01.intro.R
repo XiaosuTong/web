@@ -4,8 +4,6 @@
 
 ### In Short ###
 
-#### What is DT ####
-
 A decision tree is a flowchart-like structure in which each internal node represents a "test" on 
 an attribute (e.g. whether a coin flip comes up heads or tails), each branch represents the outcome 
 of the test and each leaf node represents a class label (decision taken after computing all 
@@ -15,10 +13,6 @@ Tree models where the target variable can take a finite set of values are called
 trees. In these tree structures, leaves represent class labels and branches represent conjunctions 
 of features that lead to those class labels. Decision trees where the target variable can take 
 continuous values (typically real numbers) are called regression trees.
-
-#### Why is DT ####
-
-### Motivation ###
 
 ## Details ##
 
@@ -38,6 +32,12 @@ or when splitting no longer adds value to the predictions. This process of top-d
 decision trees (TDIDT) is an example of a greedy algorithm, and it is by far the most common strategy 
 for learning decision trees from data.
 
+
+Decision tree learning is the construction of a decision tree from class-labeled training tuples. A 
+decision tree is a flow-chart-like structure, where each internal (non-leaf) node denotes a test on 
+an attribute, each branch represents the outcome of a test, and each leaf (or terminal) node holds 
+a class label. The topmost node in a tree is the root node.
+
 Here is a very simple pseudocode:
 
 $$
@@ -47,13 +47,19 @@ $$
  & \;\;\;\; \textbf{return} \;\; \text{new} \;\; \text{leaf(0)} \\
  & \textbf{else} \;\; \textbf{if} ( y = 1 \;\; \text{for} \;\; \text{all} (x,y) \in S) \\
  & \;\;\;\; \textbf{return} \;\; \text{new} \;\; \text{leaf(1)} \\
+ & \textbf{else} \;\; \textbf{if} \; \text{$x$ are same for all} (x,y) \in S \\
+ & \;\;\;\; \textbf{return} \;\;  \text{new} \;\; \text{leaf(majority of y)} \\
  & \textbf{else} \\
  & \;\;\;\; \text{choose best attribute} \;\; x_j \\
  & \;\;\;\; S_0 = \text{all} (x,y) \in S \text{with} x_j = 0 \\
  & \;\;\;\; S_1 = \text{all} (x,y) \in S \text{with} x_j = 1 \\
- & \;\;\;\; \textbf{return} \text{new} \;\; \text{node}(x_j, \textbf{GROWTREE}(S_0), \textbf{GROWTREE}(S_1))
+ & \;\;\;\; \textbf{return} \;\; \text{new} \; \text{node}(x_j, \textbf{GROWTREE}(S_0), \textbf{GROWTREE}(S_1))
 \end{aligned}
 $$
+However, most of time we cannot reach the leafs that have pure $y=1$ or $y=0$. For example, if we constraint
+the height of tree to be no larger than a number, we have to stop keeping growing the tree, then we just
+use the majority class of $y$ in the leaf as the prediction or use the $\overline y$ in leaf as the prediction if we
+are doing regression tree. 
 
 ### Types ###
 
@@ -68,11 +74,6 @@ price of a house, or a patient’s length of stay in a hospital).
 The term Classification And Regression Tree (CART) analysis is an umbrella term used to refer to both 
 of the above procedures. Trees used for regression and trees used for classification have some 
 similarities - but also some differences, such as the procedure used to determine where to split.
-
-Decision tree learning is the construction of a decision tree from class-labeled training tuples. A 
-decision tree is a flow-chart-like structure, where each internal (non-leaf) node denotes a test on 
-an attribute, each branch represents the outcome of a test, and each leaf (or terminal) node holds 
-a class label. The topmost node in a tree is the root node.
 
 #### Types of algorithms ####
 
@@ -224,13 +225,16 @@ Here is one problem, if attribute has many values or levels, Gain will select it
 split our data. One approach is using **GainRatio** instead:
 $$
 \begin{aligned}
-& GainRatio(S,A) = \frac{I(S;A)}{SplitInformation(S,A)} \\
-& SplitInformation(S,A) = - \sum_{i=1}^c \frac{|S_i|}{|S|}\log\frac{|S_i|}{|S|}
+& \text{GainRatio}(S,A) = \frac{I(S;A)}{\text{SplitInformation}(S,A)} \\
+& \text{SplitInformation}(S,A) = - \sum_{i=1}^c \frac{|S_i|}{|S|}\log\frac{|S_i|}{|S|}
 \end{aligned}
 $$
 where $S_i$ is subset of $S$ for which $A$ has value $v_i$. This SplitInformation is nothing but the
 sum of Entropy of target variable $Y$ over all subsets based on $X$ splitting variable. Finally, 
 we just learn branching criteria by minimize the GainRatio.
+$$
+b(X) = \arg \min_{\text{all A}} \; \text{SplitInformation}(S,A)
+$$
 
 ### Missing Value ###
 
@@ -238,7 +242,7 @@ What if some examples are misiing values of A? There are several options can be 
 all based on imputing the missing value:
 
 - If node n tests A, assign most common value of A among other examples at node n.
-- Assign most common value of A among other examples with same target value.
+- Assign most common value of A among other examples with same class value.
 - Assign probability $p_i$ to each possible value $v_i$ of $A$. The example that has $A$ missing
 will be splited to m examples if $A$ has m different levels. Now those examples will have 
 probability as the value of $Y$ instead of 1 or 0 as before. Classify new examples in same fashion.
@@ -247,17 +251,17 @@ probability as the value of $Y$ instead of 1 or 0 as before. Classify new exampl
 
 Let us revisit the overfitting defination again here. Consider error of hypothesis $h$ over
 
-- training data: $error_T(h)$
-- entire distribution $D$ of data: $error_D(h)$
+- training data: $\text{error}_T(h)$
+- entire distribution $D$ of data: $\text{error}_D(h)$
 
 Hypothesis $h \in H$ **overfits** training data if there is an alternative hypothesis $h' \in H$
 such that
 $$
-error_T(h) < error_T(h')
+\text{error}_T(h) < \text{error}_T(h')
 $$
 and
 $$
-error_D(h) > error_D(h')
+\text{error}_D(h) > \text{error}_D(h')
 $$
 So it is saying that our hypothesis or fitted model based on training data is not doing a good job 
 on validation data or in general. The model is too complex without any generalization. In the 
@@ -268,25 +272,87 @@ each leaf which is not the generalization case.
 
 How can we avoid overfitting in decision tree?
 
-- Stop growing when data splitting is not statistically significant
+- Stop growing when data splitting is not statistically significant, called pre-prune the tree before 
+grow the node
 - Grow a full tree, then post-prune
-- Pre-prune the tree before grow the node
 
-Regardless of whether the correct tree size is found by stopping early or by post-pruning, a key 
-question is what criterion is to be used to determine the correct final tree size. Approaches include:
+In general, post-pruning is better than pre-pruning. For example, sometimes an attribute can be very
+helpful to predict the class of $y$ if another attribute is used to predict the class after the first
+attribute. So the first attribute does have improvement. For this situation, pre-pruning will fail.
+Also, pre-pruning we have to consider all possible sub-tree when we are building the tree, which requiare
+heavy computing, however post-pruning, we only need to consider all sub-tree based on the full tree
+we have already had.
+
+Pruning is just trying to find the best sub-tree of the tree found based on training dataset. But the 
+question is how to choose the best sub-tree? There are several things we can do:
 
 - Use a separate set of examples, distinct from the training examples, validation dataset to evaluate
-the utility of post-pruning nodes from the tree.
+the utility of post-pruning nodes from the tree. As we just said, pruning using validation can only be
+used for post-pruning, since cannot use validation dataset in pre-pruning.
 - Use all the available data for training, but apply a statistical test to estimate whether expanding
 or pruning a particular node is likely to produce an improvement beyond the training set. For example
 a chi-square test to estimate whether further expanding a node is likely to improve performance over
-the entire instance distribution, or only on the current sample of training data.
+the entire instance distribution, or only on the current sample of training data. This method is more
+suitable for pre-pruning.
 - Add complexity penalty to performance measure. Use an explicit measure of the complexity for
 encoding the training examples and the decision tree.
 
 #### Reduced error pruning ####
 
-In summary, post-pruning is bettern than pre-pruning.
+Reduced error pruning is a classical post-pruning method. We first split data into traning and validation
+dataset. 
+- 1. Find a fully-grown tree, which we call it $T=T_{max}$
+- 2. Choose an inner node $t$ in $T$, from bottom to top, remove all successor nodes of $t$
+- 3. Assign the majority class of $y$ as the prediction result for node $t$, call the new tree $T'$
+- 4. If Error$(T')$ $\le$ Error$(T)$, then accept pruning: $T=T'$
+- 5. Continue with step 2 until all inner nodes of $T$ are tested
+
+We evaluate impact on validation set of pruning each possible inner node (plus those below it),
+and then just remove the node that most impoves validation dataset accuracy. We repeat this process until
+further pruning is harmful. When we said harmful, it means removing the node will decrease the prediction
+accuracy.
+
+#### Regularization pruning ####
+
+Another post-pruning method is based on regularization which add penalty to the performance measure, like 
+prediction error.
+
+There are several options for the penalty, one of the common one is the number of leaves or level of tree.
+$$
+\Omega(T) = \text{NumberOfLeaves}(T)
+$$
+Here is what we are doing for this pruning:
+- 1. Find a fully-grown tree, which we call it $T=T_{max}$
+- 2. For each level of tree $l$, from bottom $l=L-1$ to top $l=2$, remove one of the inner nodes in that
+level, call the
+sub-tree $T'$. Choose the sub-tree that $\arg \min \text{Error}(T')$, call the best sub-tree $T'_{l}$
+- 3. Repeat the step 2 until went through all levels in the tree. Root and leaves are not included.
+- 4. Find the final best sub-tree amoung $T'_2, T'_3, \cdots, T'_{L-1}$
+$$
+\arg \min_l \; \text{Error}(T'_{l}) + \lambda \Omega(T'_l)
+$$
+Error can be calculated as misclassification rate or weighted miscalssification rate weithed by number of
+examples in that node.
+
+#### Pruning with test ####
+
+The last pruning method we are going to introduce here is based on statistical testing: Chi-square test.
+For this method, we do not need validation dataset. Also, it can be used for pre-pruning or post-pruning.
+But the response $y$ should be categorical.
+- 1. Find a fully-grown tree, which we call it $T=T_{max}$
+- 2. Choose an inner node $t$, construct a frequency table between the $y$ and the inner node.
+- 3. If cannot reject the null hypothesis, then accept pruning: $T=T'$
+- 4. COntinue with step 2 until all inner nodes of $T$ are tested
+
+There are some variation about the Chi-squared test, which is how to define the expected count for each 
+cell. One way is to define the expected cell count based on the marginal sum, which is the original Chi-
+squared test. Another way is define the expected cell count using overall probability:
+$$
+\hat y_k^0 = \frac{y^0}{y^1 + y^0} \cdot (y_k^1+y_k^0), \;\;\; \hat y_k^1 = \frac{y^1}{y^1 + y^0} \cdot (y_k^1+y_k^0)
+$$
+where $y^1$ and $y^0$ are the overall count of $y$ for different classes. $y_k^1$ and $y_k^0$ are the count
+of $y$ for different classes at given inner node $k$. Of course, we can have more than two classes for $y$,
+it will be very easy to generalize to multiple class situation.
 
 ## Random Forests ##
 
@@ -309,6 +375,8 @@ based on evaluation dataset, cross validation.
 
 #### Selection ####
 
+Selection is actually the validation method. We just find the best $h_t$ that minimize the error of
+validation dataset:
 $$ H(x) = h_{t_*}(x) \;\;\; s.t. \;\;\; t_* = \arg\min_{t} MSE(eval) $$
 
 #### Uniform blending ####
@@ -654,7 +722,7 @@ Let us go back to adative boosting a little. Recall that every iteration time $t
     D_t(i)\alpha_t^{-\frac{1}{2}} & \quad \text{if $h_t(x_i) = y_i$} \\
     D_t(i)\alpha_t^{\frac{1}{2}} & \quad \text{if $h_t(x_i) \ne y_i$} 
   \end{array} \right.\]
-Where $\alpha = \frac{1-\epsilon_t}{\epsilon_t}$. We can rewrite this to be:
+Where $\alpha_t = \frac{1-\epsilon_t}{\epsilon_t}$. We can rewrite this to be:
 $$
 \begin{aligned}
 D_{t+1}(i) & = D_t(i) \left[ \alpha_t^{\frac{1}{2}} \right]^{-y_ih_t(x_i)} \\
@@ -791,6 +859,80 @@ $$
 In summary, Adaboost is **steepest descent with approximate functional descent**. Approximate 
 here is because we used taylor expansion.
 
-
-
 ### Gradient Boosting ###
+Gradient Boosting is a special case of the functional gradient descent view of boosting, and
+is a technique for regression problems.
+
+As a result of previous optimization view of adaboost decision tree session, we knew for a given
+iteration $t$, our objective of task is:
+$$
+\min_{\gamma} \min_{h} \frac{1}{N} \sum_{i=1}^N \exp \left( - \frac{1}{2} y_i \left( \sum_{\tau = 1}^{t} h_{\tau}(x_i) \log \alpha_{\tau} + \gamma h(x_i) \right)\right)
+$$
+The error function of adaboost is an exponential function. In general, we can replace the 
+exponential function to any other function that is a smoothing function, like the square error
+or the objective in logistic regression.
+
+So gradient boosting is a generalization of adaboost which using different error function.
+$$
+\min_{\gamma} \min_{h} \frac{1}{N} \sum_{i=1}^N \text{err} \left(\sum_{\tau=1}^t h_{\tau}(x_i) \log \alpha_{\tau} + \gamma h(x_i), y_i\right)
+$$
+we can see that our prediction (or voting score) is 
+$\sum_{\tau=1}^t h_{\tau}(x_i) \log \alpha_{\tau} + \gamma h(x_i)$. In adaboost, we actually 
+defined the error to be $\exp(-y_is_i)$. The sign of $s_i$ is the prediction result, and the 
+maginitude represent how large the error is instead of just having 0/1 error only.
+
+#### Gradient Boost for Regression ####
+
+Let us have a look at the linear regression as an example. We defined error function to be
+squared-error.
+$$
+\min_{\gamma} \min_{h} \frac{1}{N} \sum_{i=1}^N \text{err} \left(\sum_{\tau=1}^t h_{\tau}(x_i) \log \alpha_{\tau} + \gamma h(x_i), y_i\right) \;\; \text{with} \;\; \text{err}(s_i, y_i) = (s_i - y_i)^2 
+$$
+We first focus on the inner minimization:
+$$
+\begin{aligned}
+& \min_{h} \frac{1}{N} \sum_{i=1}^N \text{err} \left(\sum_{\tau=1}^t h_{\tau}(x_i) \log \alpha_{\tau} + \gamma h(x_i), y_i\right) \\
+\stackrel{taylor}{\approx} & \min_{h} \frac{1}{N} \sum_{i=1}^N \text{err}(s_i, y_i) + \frac{1}{N} \sum_{i=1}^N \gamma h(x_i) \cdot \frac{\partial \text{err}(s, y_i)}{\partial s}|_{s=s_i} \\
+= & \min_{h} \text{constants} + \frac{\gamma}{N} \sum_{i=1}^N h(x_i)\cdot 2(s_i - y_i)
+\end{aligned}
+$$
+So we only have to find a good $h(x_i)$ to minimize the second item. A naive solution is letting
+$h(x_i) = - \infty \cdot \text{sign}(s_i - y_i)$ if no constraint on $h$. But we do need a 
+constraint on $h$, because we only need $h(x_i)$ to be opposite sign as $(s_i - y_i)$, and let
+$\gamma$ to take care of the magnitude. What we can do is same as we did in LASSO or we called
+regularization or penalization. We considered a qudratic panelty.
+$$
+\begin{aligned}
+& \min_h \;\; \text{constants} + \frac{\gamma}{N} \sum_{i=1}^N (2h(x_i)(s_i - y_i) +(h(x_i))^2) \\
+\iff & \min_{h} \;\; \text{constants} + \frac{\gamma}{N} \sum_{i=1}^N \left( \text{constant} + (h(x_i) - (y_i - s_i))^2\right)
+\end{aligned}
+$$
+Based on above minimization problem, it is not hard to say that we only need to find a $h(x_i)$
+that minimizes $(h(x_i) - (y_i - s_i))^2$, which in turn will minimize the whole part. It is 
+also very easy to find out that we can use least square method to regression $(y_i - s_i)$ on 
+$x_i$ which can minimize the squared-error. The $y_i - s_i$ is nothing but residual from 
+previous iteration.
+
+Then we are going to find the $\gamma$. Assume we found best $h_{t+1}$
+$$
+\begin{aligned}
+&\min_{\gamma} \frac{1}{N} \sum_{i=1}^N (s_i + \gamma h_{t+1}(x_i) - y_i)^2 \\
+= &\frac{1}{N} \sum_{i=1}^N ((y_i - s_i) - \gamma h_{t+1}(x_i))^2
+\end{aligned}
+$$
+Here again is a least square regression problem, we just regression residual $y_i - s_i$ on
+$h_{t+1}$ transformation of $x_i$.
+
+#### Note ####
+
+- The error function can be any differentiable loss function $L(y_i, h(x_i))$. As we seen above,
+if we choose squared-error loss function, the residual is $2(y_i - s_i)$. In general, the 
+so-called pseudo-residuals is $\frac{\partial \text{err}(s, y_i)}{\partial s}|_{s=s_i}$.
+- In the next step, we fit a least square regression using training set $(x_i, \text{residual}_i)$. We also can use regression decision tree to minimize the squared-error. If we consider 
+different error loss function, then it is not true to just run a least square regression of 
+pseudo-residuals on $x_i$.
+- Still if we are using different loss function than squared-error, it is not true to run a 
+least square regression of pseudo-residuals on $h_{t+1}$. Instead, it should be:
+$$
+\gamma = \arg \min \sum_{i=1}^N \text{Loss} (y_i, \; s_i + \gamma h(x_i))
+$$
