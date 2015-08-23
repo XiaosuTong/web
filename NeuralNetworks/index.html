@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Support Vector Machine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link href="assets/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/custom/custom.css" rel="stylesheet">
+    <!-- font-awesome -->
+    <link href="assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- prism -->
+    <link href="assets/prism/prism.css" rel="stylesheet">
+    <link href="assets/prism/prism.r.css" rel="stylesheet">
+    <script type='text/javascript' src='assets/prism/prism.js'></script>
+    <script type='text/javascript' src='assets/prism/prism.r.js'></script>
+    
+    
+    
+    <script type="text/javascript" src="assets/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+   MathJax.Hub.Config({    
+     extensions: ["tex2jax.js"],    
+     "HTML-CSS": { scale: 100}    
+   });
+   </script>
+    
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <!-- <link href='http://fonts.googleapis.com/css?family=Lustria' rel='stylesheet' type='text/css'> -->
+    <link href='http://fonts.googleapis.com/css?family=Bitter' rel='stylesheet' type='text/css'>
+    
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+                                   <!-- <link rel="shortcut icon" href="ico/favicon.png"> -->
+  </head>
+
+  <body>
+
+    <div class="container-narrow">
+
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+           
+        </ul>
+        <p class="myHeader">Support Vector Machine</p>
+      </div>
+
+      <hr>
+
+<div class="container-fluid">
+   <div class="row-fluid">
+   
+   <div class="col-md-3 well">
+   <ul class = "nav nav-list" id="toc">
+   <li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>Defination</li>
+      
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#in-short'>In Short</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#motivation'>Motivation</a>
+      </li>
+
+
+<li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>Details</li>
+      
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#more-about-svm'>More about SVM</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#some-facts-of-geometry'>Some Facts of Geometry</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#functional-and-geometric-margins'>Functional and Geometric Margins</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#primal-optimization'>Primal Optimization</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#dual-optimization'>Dual Optimization</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#optimal-margin-classifiers'>Optimal Margin Classifiers</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#kernel'>Kernel</a>
+      </li>
+
+
+<li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>Non-linearly Separable</li>
+      
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#slack-variables'>"Slack" Variables</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#regularization'>Regularization</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#svm-and-logistic-regression'>SVM and Logistic Regression</a>
+      </li>
+
+
+<li class='nav-header unselectable' data-edit-href='01.intro.Rmd'>SMO Algorithm</li>
+      
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#coordinate-ascent'>Coordinate Ascent</a>
+      </li>
+
+
+      <li class='active'>
+         <a target='_self' class='nav-not-header' href='#smo'>SMO</a>
+      </li>
+
+   </ul>
+   </div>
+
+<div class="col-md-9 tab-content" id="main-content">
+
+<div class='tab-pane active' id='in-short'>
+<h3>In Short</h3>
+
+<h4>What is SVM</h4>
+
+<p>A support vector machine constructs a <strong>hyperplane or set of hyperplanes in a high- or infinite-dimensional space</strong>, 
+which can be used for classification, regression, or other tasks.</p>
+
+<h4>Why is SVM</h4>
+
+<p>Original classification problem may be stated in a finite dimensional space, it often happens that 
+the sets to discriminate are not linearly separable in that space. For this reason, it was proposed 
+that the original finite-dimensional space be mapped into a much higher-dimensional space, presumably
+making the separation easier in that space.</p>
+
+<p>The mappings used by SVM schemes are designed to ensure that dot products may be computed easily in 
+terms of the variables in the original space, by defining them in terms of a kernel function \(k(x,y)\) 
+selected to suit the problem.</p>
+
+<h4>What is optimal</h4>
+
+<p>A good separation is achieved by the hyperplane that has the largest distance to the nearest training 
+data point of any class (so-called functional margin), since in general the larger the margin the lower 
+the generalization error of the classifier.</p>
+
+</div>
+
+
+<div class='tab-pane' id='motivation'>
+<h3>Motivation</h3>
+
+<p>In the case of support vector machines, a data point is viewed as a p-dimensional vector (a list of 
+p numbers), and we want to know whether we can separate such points with a (p − 1)-dimensional 
+hyperplane. This is called a linear classifier. </p>
+
+<p>There are many hyperplanes that might classify the data. One reasonable choice as the best hyperplane 
+is the one that represents the largest separation, or margin, between the two classes. So we choose 
+the hyperplane so that the distance from it to the nearest data point on each side is maximized. If 
+such a hyperplane exists, it is known as the maximum-margin hyperplane and the linear classifier it 
+defines is known as a maximum margin classifier; or equivalently, the perception of optimal stability.</p>
+
+<p>Any hyperplane can be written as the set of points \(\mathbf{x}\) satisfying</p>
+
+<p>\(\mathbf{w}\cdot\mathbf{x} - b = 0\)</p>
+
+</div>
+
+
+<div class='tab-pane' id='more-about-svm'>
+<h3>More about SVM</h3>
+
+<p>An SVM model is a representation of the examples as points in space, mapped so that the examples of
+the separate categories are divided by a clear gap that is as wide as possible. New examples are 
+then mapped into that same space and predicted to belong to a category based on which side of the 
+gap they fall on.</p>
+
+<p>It often happens that the sets to discriminate are not linearly separable in that space. For this 
+reason, it was proposed that the original finite-dimensional space be mapped into a much 
+higher-dimensional space, presumably making the separation easier in that space.</p>
+
+<p>The hyperplanes in the higher-dimensional space are defined as the set of points whose dot product
+with a vector in that space is constant.</p>
+
+</div>
+
+
+<div class='tab-pane' id='some-facts-of-geometry'>
+<h3>Some Facts of Geometry</h3>
+
+<h4>Distance from point to a plane</h4>
+
+<p>First of all, we have to recall that one plane in Euclidean Space can be expressed as:
+\[
+\omega^Tx + b = 0, \;\;\;\; x \in R^d
+\]
+Here \(\omega\) is the <strong>normal</strong> of the hyperplane. For any point \(x_i\) that is on this hyperplane, 
+it should have \(\omega^Tx_i + b = 0\).</p>
+
+<p>Then a common question is how to calculate the distance from a point outside of plane to this hyperplane.
+Suppose the point is \(x_0 \in R^d\), and we also can randomly find another point \(x_1 \in R^d\) that is on the 
+hyperplane. Then we have a vector \(x_0 - x_1\), and the distance between \(x_0\) and the plane is nothing but
+the norm of the projection of vector \(x_0 - x_1\) to the <strong>normal</strong> of the plane (\(\omega\)). And we know that
+the projection is just the inner product of two vectors.
+\[
+Dist = \|\text{Proj}_{\omega}(x_0 - x_1)\| = \frac{\|\omega^T(x_0 - x_1)\|}{\|\omega\|} = \frac{\|\omega^Tx_0 + b\|}{\|\omega\|}
+\]</p>
+
+<h4>Inner product</h4>
+
+<p>Inner product is one of the most important concept in the Geometry. We know that we define the inner product as:
+\[
+x \cdot y = x^Ty = \sum_{i=1}^d x_iy_i
+\]
+This can be also expressed as:
+\[
+x \cdot y = \text{Proj}_{y}(x) \|y\| = \text{Proj}_{x}(y) \|x\|
+\]
+Here \(\text{Proj}_{y}(x)\) means the <strong>projection of x vector on y vector</strong>. In the previous session, we have already seen
+that the distance from a point to a hyperplane can be illustrated as a inner product between the normal vector \(\omega\)
+and the point itself plus a constant scale \(b\). Here is one of <strong>important insight about SVM</strong> is that:</p>
+
+<ul>
+<li>If a point is very close to a hyperplane, the projection of the point to the normal vector should be very small</li>
+<li>however, if a point is far away from the hyperplane, then the projection of the point to the normal should be very large.</li>
+</ul>
+
+</div>
+
+
+<div class='tab-pane' id='functional-and-geometric-margins'>
+<h3>Functional and Geometric Margins</h3>
+
+<p>The geometric margin is just a scaled version of the functional margin.</p>
+
+<p>You can think the functional margin, just as a testing function that will tell you whether a particular 
+point is properly classified or not. And the geometric margin is functional margin scaled by \(\|\omega\|\)</p>
+
+<p>the result would be positive for properly classified points and negative otherwise. If you scale 
+that by \(\|\omega\|\) then you will have the geometric margin. </p>
+
+<p>Why does the geometric margin exists?</p>
+
+<p>Well to maximize the margin you need more that just the sign, you need to have a notion of magnitude,
+the functional margin would give you a number but without a reference you can&#39;t tell if the point is 
+actually far away or close to the decision plane. The geometric margin is telling you not only if 
+the point is properly classified or not, but the magnitude of that distance in term of units of 
+\(\|\omega\|\) </p>
+
+</div>
+
+
+<div class='tab-pane' id='primal-optimization'>
+<h3>Primal Optimization</h3>
+
+<p>First of all, consider a problem of the following form:</p>
+
+<p>\[
+\begin{aligned}
+\min_{\omega} & f(\omega) \\
+s.t. & h_i(\omega) = 0, \;\;\; i = 1, \cdots, l 
+\end{aligned}
+\]</p>
+
+<p>It is obvious that the method of Lagrange multipliers can be used to solve it. In this method, we
+define the <strong>Lagrangian</strong> to be
+\[
+\mathcal{L}(\omega, \beta) = f(\omega) + \sum_{i=1}^{l}\beta_ih_i(\omega)
+\]
+Here the \(\beta\)&#39;s are called the <strong>Lagrangian multipliers</strong>. We would then find and set \(\mathcal{L}\)&#39;s
+partial derivatives to zero:
+\[
+\frac{\partial\mathcal{L}}{\partial\omega_i} = 0; \;\;\; \frac{\partial\mathcal{L}}{\partial\beta_i} = 0
+\]
+and solve for \(\omega\) and \(\beta\), since the second derivative will give us \(h_i(\omega) = 0\)</p>
+
+<p>But sometimes, the constraint are not just \(h_i(\omega) = 0\). We may have inequality and equality constraints.
+So the problem will become as following, which we call the <strong>primal</strong> optimization problem:
+\[
+\begin{aligned}
+\min_{\omega} & f(\omega) \\
+s.t. & g_i(\omega) \le 0, \;\;\; i = 1, \cdots, k \\
+& h_i(\omega) = 0, \;\;\; i = 1, \cdots, l 
+\end{aligned}
+\]
+To solve it, we start by defining the <strong>generalized Lagrangian</strong>
+\[
+\mathcal{L}(\omega, \beta) = f(\omega) + \sum_{i=1}^{k}\alpha_ig_i(\omega) + \sum_{i=1}^{l}\beta_ih_i(\omega)
+\]
+Here, \(\alpha_i\) and \(\beta_i\) are Lagrange multipliers. And for the multipliers associated with inequality,
+we should have further constraint: \(\alpha_i \ge 0\). Consider the quantity:
+\[
+\theta_{\mathcal{P}}(\omega) = \max_{\alpha, \beta: \alpha_i \ge 0} \mathcal{L}(\omega, \alpha, \beta)
+\]
+Here, the &quot;\(\mathcal{P}\)&quot; subscript stands for &quot;primal&quot;. For this quantity, we fix the \(\omega\), and vary 
+\(\alpha\) and \(\beta\). If the given \(\omega\) violates any primal constraints for some \(i\), the we will have 
+\[
+\theta_{\mathcal{P}}(\omega) = f(\omega) + \max_{\alpha} \sum_{i=1}^{k}\alpha_ig_i(\omega) + \max_{\beta} 
+\sum_{i=1}^{l}\beta_ih_i(\omega) =  \infty
+\]
+It is obvious that we can easily find \(\beta_i\)&#39;s to make \(\sum_{i=1}^{l}\beta_ih_i(\omega)\) to be \(\infty\) if
+\(h_i(\omega) \ne 0\). Same for the \(\alpha_i\)&#39;s
+Conversely, if the constraints are indeed satisfied for the given value of \(\omega\), then 
+\(\theta_{\mathcal{P}}(\omega) = f(\omega)\). Hence,</p>
+
+<p>\[ \theta_{\mathcal{P}}(\omega) = \left\{
+  \begin{array}{l l}
+    f(\omega) & \quad \text{if $\omega$ satisfies primal constraints}\\
+    \infty & \quad \text{otherwise}
+  \end{array} \right.\]</p>
+
+<p>Thus, \(\theta_{\mathcal{P}}\) takes the same value as the objective in our problem for all value of \(\omega\) 
+that satisfies the primal constraints, and is positive infinity if constraints are violated. So if we consider
+the minimization problem:</p>
+
+<p>\[
+\min_{\omega} \theta_{\mathcal{P}}(\omega) = \min_{\omega} \max_{\alpha, \beta: \alpha_i \ge 0} \mathcal{L}(\omega, \alpha, \beta)
+\]</p>
+
+<p>will be the same problem (and has the same solutions as) our original primal problem. For later use, we define 
+the optimal value of the objective to be </p>
+
+<p>\[p^* = \min_{\omega} \theta_{\mathcal{P}}(\omega)\]</p>
+
+<h4>Note</h4>
+
+<p>One thing should keep in mind is that in the primal problem (primal optimization), we first maximize our objective function 
+\(\mathcal{L}(\omega, \alpha, \beta)\) with respect to \(\alpha\) and \(\beta\) for a given \(\omega\), because we can tell if this 
+given \(\omega\) is satisfied constraints or not by checking if the maximization of \(\alpha\) and \(\beta\) is infinity or not.
+And then minimize over \(\omega\), this basically just identify \(f(\omega)\) from infinity.</p>
+
+</div>
+
+
+<div class='tab-pane' id='dual-optimization'>
+<h3>Dual Optimization</h3>
+
+<p>Now, besides the primal problem, let&#39;s look at a slightly different problem. We define that 
+\[
+\theta_{\mathcal{D}}(\alpha, \beta) = \min_{\omega}\mathcal{L}(\omega, \alpha, \beta)
+\]
+Here, the &quot;\(\mathcal{D}\)&quot; subscript stands for &quot;dual&quot;. Note that the difference between \(\theta_{\mathcal{D}}\) 
+and \(\theta_{\mathcal{P}}\):</p>
+
+<ul>
+<li>\(\theta_{\mathcal{P}}(\omega) = \max_{\alpha, \beta} \mathcal{L}(\omega, \alpha, \beta)\), 
+and then \(\min_{\omega} \theta_{\mathcal{P}}(\omega)\)</li>
+<li>\(\theta_{\mathcal{D}}(\alpha, \beta) = \min_{\omega} \mathcal{L}(\omega, \alpha, \beta)\), 
+and then \(\max_{\alpha, \beta} \theta_{\mathcal{D}}(\alpha, \beta)\)</li>
+</ul>
+
+<p>So the <strong>dual</strong> optimization problem is:</p>
+
+<p>\[
+\max_{\alpha, \beta: \alpha_i \ge 0} \theta_{\mathcal{D}}(\alpha, \beta) = \max_{\alpha, \beta: \alpha_i \ge 0} \min_{\omega}
+\mathcal{L} (\omega, \alpha, \beta)
+\]</p>
+
+<p>This is exactly the same as our primal problem, except that the order of the &quot;max&quot; and &quot;min&quot; are now exchanged.
+We also define the optimal value of dual problem&#39;s objective to be:
+\[
+d^* =  \max_{\alpha, \beta: \alpha_i \ge 0} \theta_{\mathcal{D}}(\alpha, \beta)
+\]
+Since we know the &quot;max min&quot; of a function always being less than or equal to the &quot;min max&quot;, we can have
+\[
+d^* = \max_{\alpha, \beta: \alpha_i \ge 0} \min_{\omega} \mathcal{L} (\omega, \alpha, \beta) \le
+\min_{\omega} \max_{\alpha, \beta: \alpha_i \ge 0} \mathcal{L}(\omega, \alpha, \beta) = p^*
+\]
+However under certain conditions, we will have \(d^* = p^*\). So that we can solve the dual problem in lieu of the primal problem.</p>
+
+<p>Assumption:</p>
+
+<ul>
+<li>\(f\) and \(g_i\)&#39;s are convex</li>
+<li>\(h_i\)&#39;s are affine, which means there exists \(a_i\) and \(b_i\) so that \(h_i(\omega) = a_i^T\omega + b_i\). Affine means the same
+thing as linear, except that we also allow the extra intercept term \(b_i\)</li>
+<li>constraints \(g_i\) are strictly feasible, which means there exists some \(\omega\) so that \(g_i(\omega) < 0\) for all \(i\).</li>
+</ul>
+
+<p>Under these three assumptions, there <strong>must</strong> exist \(\omega^*, \alpha^*, \beta^*\) so that \(\omega^*\) is the solution to the 
+primal problem, \(\alpha^*, \beta^*\) are the solution to the dual problem, and moreover, \(p^* = d^* = \mathcal{L}(\omega^*, \alpha^*, \beta^*)\).
+Moreover, \(\omega^*, \alpha^*, \beta^*\) satisfy the <strong>Karush-Kuhn-Tucker (KKT) conditions</strong>, which are as follows:
+\[
+\begin{aligned}
+\frac{\partial}{\partial \omega_i}\mathcal{L}(\omega^*, \alpha^*, \beta^*) = 0 \;\;\; i = 1, \cdots, d \\
+\frac{\partial}{\partial \beta_i}\mathcal{L}(\omega^*, \alpha^*, \beta^*) = 0 \;\;\; i = 1, \cdots, l \\
+\alpha_i^*g_i(\omega^*) = 0 \;\;\; i = 1, \cdots, k \\
+g_i(\omega^*) \le 0 \;\;\; i = 1, \cdots, k \\
+\alpha_i^* \ge 0 \;\;\; i = 1, \cdots, k 
+\end{aligned}
+\]
+Also, we have:
+\[
+\omega^*, \alpha^*, \beta^* \text{are the solution to the dual and primal problem correspondingly} \\
+\iff \omega^*, \alpha^*, \beta^* \text{satisfy the KKT conditions}
+\]</p>
+
+<p>We should draw attention to the third condition, <strong>\(\alpha_i^*g_i(\omega^*) = 0\)</strong>, which is called the 
+<strong>KKT dual complementarity</strong> condition. Specifically, it implies that if \(\alpha_i^* > 0\), then \(g_i(\omega^*) = 0\).</p>
+
+</div>
+
+
+<div class='tab-pane' id='optimal-margin-classifiers'>
+<h3>Optimal Margin Classifiers</h3>
+
+<p>Previous in the session of functional and geometric margin, we posed the following primal optimization problem for 
+finding the optimal margin classifier:
+\[
+\begin{aligned}
+\min_{\gamma, \omega, b} & \frac{1}{2} \|\omega\|^2 \\
+s.t. & y_i(\omega^Tx_i + b) \ge 1, \;\;\; i = 1, \cdots, m 
+\end{aligned}
+\]
+Because in generalized Lagrangian we always have \(\le\) inequality, we can write the constraints as:
+\[
+g_i(\omega) = - y_i(\omega^Tx_i + b) + 1 \le 0
+\]
+We have one such constraint for each training example. Note that from the KKT dual complementarity condition, we will 
+have \(\alpha_i > 0\) only for the training examples that have functional margin exactly equal to 1. Those points are
+called the <strong>support vectors</strong></p>
+
+<p>Now we construct the Lagrangian for our optimization problem:
+\[
+\mathcal{L}(\omega, b, \alpha) = \frac{1}{2}\|\omega\|^2 - \sum_{i=1}^m \alpha_i[y_i(\omega^Tx_i + b) - 1]
+\]
+Let&#39;s find the dual form first.</p>
+
+<h4>Why dual form not primal form</h4>
+
+<p>dual and primal problems are two different ways to solve the optimization problem right above. If we try the primal
+form first, then we have to try to find out the \(\theta_{\mathcal{P}}(\omega)\) which is the maximum of \(\mathcal{L}\) over 
+\(\alpha\) for a given \(\omega\).
+It is easy to find that this maximization cannot be solved by taking the derivative with respect to \(\alpha\)</p>
+
+<p>Then we are thinking if we can solve the dual form under specific conditions, then the solution to dual form will also be
+the solution to the primal problem. So that is why we are considering the dual form now.</p>
+
+<h4>Dual form to primal form</h4>
+
+<p>We need to minimize \(\mathcal{L}(\omega, b, \alpha)\) with respect to \(\omega\) and \(b\)
+for fixed \(\alpha\) to get \(\theta_{\mathcal{D}}\). So we can have:
+\[
+\bigtriangledown_{\omega} \mathcal{L}(\omega, b, \alpha) = \omega - \sum_{i=1}^m\alpha_iy_ix_i = 0
+\]
+This implies that 
+\[
+\omega = \sum_{i=1}^m \alpha_iy_ix_i
+\]
+As for the derivative with respect to \(b\), we obtain
+\[
+\frac{\partial}{\partial b} \mathcal{L}(\omega, b, \alpha) = \sum_{i=1}^m\alpha_iy_i = 0
+\]</p>
+
+<p>If we take the definition of \(\omega =\sum_{i=1}^m \alpha_iy_ix_i\) and plug that back into the \(\mathcal{L}\),
+also replace \(\sum_{i=1}^m \alpha_iy_i\) with 0. Then we have:
+\[
+\begin{aligned}
+\mathcal{L}(\omega, b, \alpha) & = \frac{1}{2}\omega^T\omega - \sum_{i=1}^m\alpha_iy_i\omega^Tx_i - 
+b\sum_{i=1}^m\alpha_iy_i + \sum_{i=1}^m\alpha_i \\
+& = \sum_{i=1}^m\alpha_i +\omega^T(\frac{1}{2}\omega - \sum_{i=1}^m\alpha_iy_ix_i) \\
+& = \sum_{i=1}^m\alpha_i +\omega^T(\frac{1}{2}\omega - \omega) \\
+& = \sum_{i=1}^m\alpha_i - \frac{1}{2}\omega^T\omega \\
+& = \sum_{i=1}^m\alpha_i - \frac{1}{2}(\sum_{i=1}^m\alpha_iy_ix_i)^T(\sum_{j=1}^m\alpha_jy_jx_j) \\
+& = \sum_{i=1}^m\alpha_i - \frac{1}{2}\sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j x_i^Tx_j
+\end{aligned}
+\]</p>
+
+<p>Then the next step is to maximize the \(\mathcal{L}\) in the above form. Putting this together with constraints \(\alpha_i \ge 0\)
+we obtain the following dual optimization problem:
+\[
+\begin{aligned}
+\max_{\alpha} & W(\alpha) = \sum_{i=1}^m\alpha_i - \frac{1}{2} \sum_{i=1}^m \sum_{j=1}^m \alpha_i\alpha_j y_iy_j 
+\langle x_i, x_j \rangle \\
+s.t. & \alpha_i \ge 0 \;\;\; i = 1, \cdots, m \\
+& \sum_{i=1}^m \alpha_iy_i = 0
+\end{aligned}
+\]
+More important, 
+the conditions for \(p^* = d^*\)</p>
+
+<ul>
+<li>\(f\) and \(g_i\)&#39;s are convex</li>
+<li>\(h_i\)&#39;s are affine, which means there exists \(a_i\) and \(b_i\) so that \(h_i(\omega) = a_i^T\omega + b_i\). Affine means the same
+thing as linear, except that we also allow the extra intercept term \(b_i\)</li>
+<li>constraints \(g_i\) are strictly feasible, which means there exists some \(\omega\) so that \(g_i(\omega) < 0\) for all \(i\).</li>
+</ul>
+
+<p>and the KKT conditions: </p>
+
+<pre><code>(I should add more intuition here!!!)
+</code></pre>
+
+<ul>
+<li>No matter what \(\alpha\) we found, \(\omega = \sum_{i=1}^m \alpha_i y_i\) is the solution to 
+\(\bigtriangledown_{\omega} \mathcal{L}(\omega, b, \alpha) = 0\). Same for the \(b\). This makes the first KKT condition to be valid.</li>
+<li>Second KKT condition we do not have here since we do not have equality constraint. Wen only have \(\alpha\) here.</li>
+<li>\(g_i(\omega) = - y_i(\omega^Tx_i + b) + 1 \le 0\) is satisfied here.</li>
+<li>We have \(\alpha_i \ge 0\)</li>
+<li>\(\alpha_ig_i(\omega) = 0\) is satisfied when construct the Lagrangian for our optimization problem </li>
+</ul>
+
+<p>to hold are indeed satisfied in this optimization problem. </p>
+
+<p>Suppose we are indeed able to solve the above maximization problem with respect to \(\alpha\), then we can use 
+\(\omega = \sum_{i=1}^m \alpha_i y_ix_i\) to go back and find the \(\omega^*\). Using \(\alpha^*\) and \(\omega^*\), then we solve the \(b^*\)
+by 
+\[
+b^* = \arg\min_{b}\mathcal{L}(\omega^*, b, \alpha^*) = -\frac{\max_{i:y_i=-1}\omega^{*T}x_i + \min_{i:y_i=1}\omega^{*T}x_i}{2}
+\]</p>
+
+<pre><code>I should add more intuition here!!!
+</code></pre>
+
+<p>Moreover, if we take a more careful look at the \(\omega = \sum_{i=1}^m \alpha_i y_ix_i\). Suppose we have fit our model&#39;s 
+parameters to a training set, and now wish to make a prediction at a new point input \(x_{\text{new}}\). We would then calculate 
+\(\omega^Tx_{\text{new}} +b\):
+\[
+\begin{aligned}
+\omega^Tx_{\text{new}} + b = & \left( \sum_{i=1}^m \alpha_iy_ix_i\right)^T x_{\text{new}} + b \\
+& = \sum_{i=1}^m \alpha_iy_i \langle x_i, x_{\text{new}}\rangle + b
+\end{aligned}
+\]</p>
+
+<p>Hence, if we have found the \(\alpha_i\)&#39;s, in order to make a prediction, we have to calculate a quantity that depends only on 
+the inner product between \(x_{\text{new}}\) and the points in the training set. And we know that the \(\alpha_i\)&#39;s will all be
+zero except for the support vectors. Thus many of the terms in the sum above will be zero, and we only need to find the inner
+products between \(x_{\text{new}}\) and the support vectors.</p>
+
+</div>
+
+
+<div class='tab-pane' id='kernel'>
+<h3>Kernel</h3>
+
+<p>As we noticed in the previous session, only the inner products between \(x_{\text{new}}\) and the support vectors is need for 
+prediction of new observation. So applying Kernels to our classification problem will be able to efficiently learn in very 
+high dimensional spaces.</p>
+
+<h4>Feature mapping</h4>
+
+<p>First of all, let&#39;s talk a little about <strong>attributes</strong> and <strong>features</strong>.</p>
+
+<ul>
+<li><strong>attributes</strong>: is the original input value, like \(x\)</li>
+<li><strong>features</strong>: is the original input \(x\) is mapped to some new set of quantities that are then passed to the model, like
+\(x\), \(x^2\), \(x^3\)
+We also let \(\phi\) denote the <strong>feature mapping</strong> which maps from the attributes to the features. For example, we can 
+have 
+\[\phi(x) = [x \;\;\; x^2 \;\;\; x^3]^T\]</li>
+</ul>
+
+<p>So rather than applying SVM using the original input attributes \(x\), we may instead want to learn using some features 
+\(\phi(x)\). To do so, we simply need to go over our previous algorithm and replace \(x\) everywhere in it with \(\phi(x)\).</p>
+
+<h4>Kernel and mapping</h4>
+
+<p>Since the prediction of new point can be written entirely in terms of the inner products 
+\(\langle x_i, x_{\text{new}}\rangle\), this means that we would replace all those inner products with 
+\(\langle \phi(x_i), \phi(x_{\text{new}})\rangle\). Specifically, given a feature mapping \(\phi\), we define the 
+<strong>corresponding Kernel</strong> to be
+\[
+K(x_i, x_{\text{new}}) = \phi(x_i)^T\phi(x_{\text{new}})
+\]
+Then everywhere we previously had \(\langle x_i, x_{\text{new}}\rangle\) in our algorithm, we could simply replace it
+with \(K(x_i, x_{\text{new}})\), and the algorithm would now be learning using the features \(\phi\).</p>
+
+<p>Now, given \(\phi\), we could easily compute \(K(x_i, x_{\text{new}})\) by finding \(\phi(x_i)\) and \(\phi(x_{\text{new}})\)
+and taking their inner product. On the other hand, for a given \(K(\cdot, \cdot)\), we also could find a \(\phi\) which is
+one-to-one correspondent to it. So there is a one-to-one correspondence between a feature mapping to a Kernel. What is
+more interesting is that often, \(K(x_i, x_{\text{new}})\) may be very inexpensive to calculate, even though \(\phi(x)\)
+itself may be very expensive to calculate, perhaps because it is an extremely high dimensional vector. </p>
+
+<p>In such settings, by using in SVM an efficient way to calculate kernel \(K(\cdot, \cdot)\), we can get SVM to learn 
+in the high dimensional feature space given by \(\phi\) but without ever having to calculate the \(\phi(x)\).
+For example, suppose \(x,z \in \mathbb{R}^d\), and we define the kernel as:
+\[
+K(x,z) = (x^Tz)^2
+\]
+We can also write this as:
+\[
+\begin{aligned}
+K(x,z) & = \left( \sum_{i=1}^d x_iz_i \right)\left( \sum_{i=1}^d x_iz_i \right) \\
+& = \sum_{i=1}^d \sum_{j=1}^d (x_ix_j)(z_iz_j)
+\end{aligned}
+\]
+Thus we see that \(K(x,z) =  \phi(x)^T\phi(z)\), where the feature mapping \(\phi\) is (shown here for the case of \(d=3\)):
+\[
+\phi(x) = [x_1x_1 \;\; x_1x_2 \;\; x_1x_3 \;\; x_2x_1 \;\; x_2x_2 \;\; x_2x_3 \;\; x_3x_1 \;\; x_3x_2 \;\; x_3x_3]^T
+\]
+So the \(\phi(x)\) is a mapping: \(\mathbb{R}^d \to \mathbb{R}^{d^2}\).
+Note that whereas calculating the high-dimensional \(\phi(x)\) requires \(O(n^2)\) time, however finding \(K(x,z)\) takes
+only \(O(n)\) time.</p>
+
+<p>In summary, Kernel methods owe their name to the use of kernel functions, which enable them to operate in a 
+high-dimensional, implicit feature space without ever computing the coordinates of the data in that 
+space, but rather by simply computing the inner products between the images of all pairs of data in the
+feature space. This operation is often computationally cheaper than the explicit computation of the 
+coordinates. This approach is called the &quot;kernel trick&quot;. </p>
+
+<h4>Different view of Kernel</h4>
+
+<p>From a different view of kernels, if \(\phi(x)\) and \(\phi(z)\) are close together, then we might expect \(K(x,z) = \phi(x)^T\phi(z)\)
+to be large. Conversely, if \(\phi(x)\) and \(\phi(z)\) are far apart, say nearly orthogonal to each other, then 
+\(K(x,z) = \phi(x)^T\phi(z)\) will be small. So we can think of \(K(x,z)\) as some measurement of how similar are
+\(\phi(x)\) and \(\phi(z)\), or of how similar are \(x\) and \(z\).</p>
+
+<p>Since there is a one-to-one correspondence between a feature mapping to a Kernel, we can either define a feature mapping
+and then find the corresponding Kernel, or define a Kernel then find the corresponding mapping. But most of time
+people prefer the second way, given some function \(K\), how can we tell if it is a valid kernel, which means how can we 
+tell if there is some feature mapping \(\phi\) corresponds to it?</p>
+
+<h4>Kernel matrix</h4>
+
+<p>Suppose for now that \(K(\cdot, \cdot)\) is indeed a valid kernel corresponding to some feature mapping \(\phi\). We define a 
+square, m-by-m matrix \(K\) that its \((i,j)\)-entry is given by \(K_{ij} = K(x_i, x_j)\). This matrix is called the <strong>Kernel matrix</strong>.</p>
+
+<ul>
+<li>Kernel matrix must be symmetric since \(K_{ij} = K(x_i, x_j) = \phi(x_i)^T\phi(x_j) =  \phi(x_j)^T\phi(x_x) = K(x_j, x_i) = K_{ji}\) </li>
+<li>Kernel matrix is positive semi-definite, since for any vector \(z\), we have 
+\(z^TKz = \sum_i\sum_j z_iK_{ij}z_j = \sum_k\left(\sum_i z_i\phi_k(x_i)\right)^2 \ge 0\), \(k\) here is the index for \(k\)-th 
+coordinate of the vector \(\phi(x)\).</li>
+</ul>
+
+<p><strong>Theorem (Mercer)</strong>
+Let \(K: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}\) be given. Then for \(K\) to be a valid kernel, it is necessary and
+sufficient that for any \({x_i, \cdots, x_m}\), the corresponding kernel matrix is symmetric positive semi-definite.</p>
+
+</div>
+
+
+<div class='tab-pane' id='slack-variables'>
+<h3>&quot;Slack&quot; Variables</h3>
+
+<p>Previously, we introduced how to separate points by linearly separable hyperplane. But it is possible
+that the large margin solution is better even though one constraint is violated.</p>
+
+<p>So we permit to have functional margin less than 1 for some cases, such that 
+\[y_i(\omega^Tx_i + b) \ge 1 - \xi_i\]
+\[\xi_i \ge 0\] 
+This \(\xi_i\) are called slack variables. For the support vectors, the functional 
+margin is 
+\[\gamma_i = y_i(\omega^Tx_i + b) = 1,\] 
+which means \(\xi_i = 0\), and distance from support vectors to classification hyperplane is \(\frac{1}{\|\omega\|}\).
+Originally, within either class, distance from any point to the classification hyperplane is larger or equal to 
+the \(\frac{1}{\|\omega\|}\). But now since we permit have some cases that functional margin is less than 1, we will
+have some cases that the distance from those points to the classification hyperplane are less than 1 or maybe 
+even larger than 1 but on the other side. So in other words, there are two different situations for slack variable.</p>
+
+<h4>Margin violation</h4>
+
+<p>For this type of situation, we have <strong>\(0 < \xi_i \le 1\)</strong>. This means the distance between this type of points
+and the hyperplane \(\omega^Tx + b\) is:
+\[ 0 \le \frac{1 - \xi_i}{\|\omega\|} < \frac{1}{\|\omega\|}\]
+The above distance greater or equal to zero means this point is still on the correct side of classification 
+hyperplane. On the other hand, it should smaller than \(\frac{1}{\|\omega\|}\), which is the distance from 
+support vector.</p>
+
+<p>In summary, margin violation means we will permit a correct classification point but with smaller margin than
+support vectors. One thing to keep in mind that the distance we are talking about here do not have a direction.
+Which means we are talking about the distance for a point from a given class to the hyperplane. Later on we 
+will see a negative distance, that means the distance is from the other side.</p>
+
+<h4>Misclassified</h4>
+
+<p>For this type of situation, we have <strong>\(\xi_i > 1\)</strong>. This means the distance between this type of points and the
+hyperplane \(\omega^Tx + b\) is:
+\[
+\frac{1 - \xi_i}{\|\omega\|} < - \frac{1}{\|\omega\|}
+\]
+The magnitude of this distance is actually greater than \(\frac{1}{\|\omega\|}\), which is because the distance
+is larger than the support vectors. However the negative sign with the distance means this point is misclassified
+on the other side.</p>
+
+</div>
+
+
+<div class='tab-pane' id='regularization'>
+<h3>Regularization</h3>
+
+<p>Since we permit margin violation or misclassified points in our sample, we should add penalty on those points.
+One thing should be noticed that if the \(\xi_i\) is sufficiently large, then constraint for every point can be
+satisfied.</p>
+
+<p>\[ 
+\begin{aligned}
+& \min_{\gamma, \omega, b} \frac{1}{2}||\omega||^2 + C\sum_{i=1}^{m} \xi_i \\
+s.t. & y_i(\omega^Tx_i + b) \ge 1 - \xi_i \\
+& \xi_i \ge 0
+\end{aligned}
+\]</p>
+
+<p>C is the regularization parameter, </p>
+
+<ul>
+<li>If C is small, then all constraints are easily to be ignored. It means we can have relatively large \(\xi_i\)
+and to have a large margin with many cases of margin violation and misclassification.</li>
+<li>If C is large, then all constraints are hard to be ignored. It means we can have small \(\xi_i\) and to have a
+narrow margin in order to avoid margin violation or misclassification.</li>
+<li>If C is \(\infty\), then all constraints are enforced to be satisfied, which called hard margin. In this extreme
+case, we do not have soft margin solution, and which goes back to original SVM.</li>
+</ul>
+
+<p>The value of C can also be viewed as a way to trade off between overfitting (high variance) and underfitting (high 
+bias). </p>
+
+<ul>
+<li>If C is too small, it will cause the overfitting problem</li>
+<li>If C is too large, it will then cause the underfitting problem.</li>
+</ul>
+
+<p>Then the optimization problem can be reformed using <strong>Lagrange multipliers</strong> method. Let us define 
+the <strong>Lagrangian</strong> to be:</p>
+
+<p>\[
+\begin{aligned}
+\mathcal{L}(\omega, b, \xi, \alpha, r) = \frac{1}{2}\omega^T\omega + C\sum_{i=1}^m\xi_i - 
+\sum_{i=1}^m\alpha_i[y_i(x^Tx + b) - 1 + \xi_i] - \sum_{i=1}^mr_i\xi_i
+\end{aligned}
+\]</p>
+
+<p>Here \(\alpha_i\) and \(r_i\) are our Lagrange multipliers.
+All optimal solutions must satisfy Karush-Kuhn-Tucker (KKT) conditions:</p>
+
+<p>\[
+\begin{aligned}
+\frac{\partial}{\partial \omega}\mathcal{L} = 0 \\
+\frac{\partial}{\partial b}\mathcal{L} = \sum_{i=1}^m \alpha_i y_i = 0 \\
+\frac{\partial}{\partial \xi_i}\mathcal{L} = C - \alpha_i - r_i = 0 & \;\;\; i = 1, 2, \cdots, m \\
+\alpha_i[y_i(x^Tx + b) - 1 + \xi_i] = 0 & \;\;\; i = 1, 2, \cdots, m \\
+r_i\xi_i = 0 & \;\;\; i = 1, 2, \cdots, m \\
+\alpha_i \ge 0 & \;\;\; i = 1, 2, \cdots, m \\
+r_i \ge 0 & \;\;\; i = 1, 2, \cdots, m \\
+-\xi_i \le 0 & \;\;\; i = 1, 2, \cdots, m \\
+-[y_i(x^Tx + b) - 1 + \xi_i] \le 0 & \;\;\; i = 1, 2, \cdots, m
+\end{aligned}
+\]</p>
+
+<p>First we look at the third condition. It can be rewrote as \(\alpha_i = C - r_i\), recall that \(r_i \ge 0\).
+So we can get the condition for \(\alpha_i\) as:
+\[0 \le \alpha_i \le C\]</p>
+
+<p>The optimality conditions are both necessary and sufficient. If we have
+\(C\), \(\xi\), b, \(\alpha\), and r satisfying the above conditions, we know that they represent optimal 
+solutions to the primal and dual problems.</p>
+
+<p>Also among all conditions, the KKT dual-complementarity conditions are:
+\[
+\begin{aligned}
+\alpha_i[y_i(x^Tx + b) - 1 + \xi_i] = 0 & \;\;\; i = 1, 2, \cdots, m \\
+r_i\xi_i = 0 & \;\;\; i = 1, 2, \cdots, m \\
+\end{aligned}
+\]
+Then, we can have </p>
+
+<ul>
+<li>If \(\alpha_i = 0\), then \(y_i(x^Tx + b) - 1 + \xi_i > 0\), according to the third condition of KKT
+\(r_i = C \Rightarrow \xi_i = 0 \Rightarrow y_i(x^Tx + b) > 1\)</li>
+<li>If \(\alpha_i = C\), then according to the third condition of KKT, \(r_i = 0 \Rightarrow \xi_i >0\), 
+\(y_i(x^Tx + b) - 1 + \xi_i = 0 \Rightarrow y_i(x^Tx + b) < 1\)</li>
+<li>If \(0 < \alpha_i < C\), then \(y_i(x^Tx + b) - 1 + \xi_i = 0\), and \(r_i \ne 0 \Rightarrow \xi_i = 0\).
+So \(y_i(x^Tx + b) = 1\)</li>
+</ul>
+
+</div>
+
+
+<div class='tab-pane' id='svm-and-logistic-regression'>
+<h3>SVM and Logistic Regression</h3>
+
+</div>
+
+
+<div class='tab-pane' id='coordinate-ascent'>
+<h3>Coordinate Ascent</h3>
+
+</div>
+
+
+<div class='tab-pane' id='smo'>
+<h3>SMO</h3>
+
+</div>
+
+   
+   <ul class="pager">
+      <li><a href="#" id="previous">&larr; Previous</a></li> 
+      <li><a href="#" id="next">Next &rarr;</a></li> 
+   </ul>
+</div>
+
+
+</div>
+</div>
+
+<hr>
+
+<div class="footer">
+   <p>&copy; Xiaosu Tong, 2014</p>
+</div>
+</div> <!-- /container -->
+
+<script src="assets/jquery/jquery.js"></script>
+<script type='text/javascript' src='assets/custom/custom.js'></script>
+<script src="assets/bootstrap/js/bootstrap.js"></script>
+<script src="assets/custom/jquery.ba-hashchange.min.js"></script>
+<script src="assets/custom/nav.js"></script>
+
+</body>
+</html>
