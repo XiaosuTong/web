@@ -1,0 +1,19 @@
+### latex template
+*.log
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.lof
+*.lot
+*.out
+*.toc
+
+### R tmp
+*/*.RData
+*/*.Rout
+*/markdown
+*/assets
+*/cashe
+*/code
+
