@@ -936,3 +936,4 @@ least square regression of pseudo-residuals on $h_{t+1}$. Instead, it should be:
 $$
 \gamma = \arg \min \sum_{i=1}^N \text{Loss} (y_i, \; s_i + \gamma h(x_i))
 $$
+end
